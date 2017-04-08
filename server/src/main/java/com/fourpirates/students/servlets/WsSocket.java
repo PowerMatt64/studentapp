@@ -88,7 +88,7 @@ public class WsSocket extends WebSocketServlet implements WebSocketListener,Runn
 		StringBuilder map = new StringBuilder();
 		map.append("{\"a\":\"load\",\"items\":[");
 		int c=0;
-		for (Entry<String, Map<String, String>> se:Store.getInstance().getStudents().entrySet()) {
+		for (Entry<String, Map<String, Object>> se:Store.getInstance().getStudents().entrySet()) {
 			if (c>0) map.append(',');
 			map.append("{");
 			map.append("\"id\":"+gson.toJson(se.getKey())+",");
