@@ -12,7 +12,7 @@ import IconButton from 'material-ui/IconButton';
 
 
 //const host = "";
-const host = "http://localhost:8081";
+const host = "http://localhost:8080";
 
 export default class Main extends React.Component {
 
@@ -22,7 +22,8 @@ export default class Main extends React.Component {
             items: [],
             addDialogOpen:false,
             first_name:'',
-            last_name:''
+            last_name:'',
+            email:''
         }
     	this.handleCancel = this.handleCancel.bind(this);
     	this.handleSubmit = this.handleSubmit.bind(this);
@@ -33,7 +34,7 @@ export default class Main extends React.Component {
     // handle realtime updates / component mount
     componentDidMount() {
         var _this = this;
-        this.connection = new WebSocket('ws://localhost:8081/studentws');
+        this.connection = new WebSocket('ws://localhost:8080/studentws');
         this.connection.onmessage = evt => {
             console.log(evt.data);
             var msg = JSON.parse(evt.data);
@@ -57,7 +58,8 @@ export default class Main extends React.Component {
 		axios.post(host+"/student",{
 				id:-1,
 				first_name:this.state.first_name,
-				last_name:this.state.last_name
+				last_name:this.state.last_name,
+                email:this.state.email
 				}).then(function(result){
         });
 	    this.setState({addDialogOpen: false});
@@ -66,12 +68,13 @@ export default class Main extends React.Component {
         let value = e.target.value;
 		if (e.target.id==="first_name") this.setState({first_name:value});
 		if (e.target.id==="last_name") this.setState({last_name:value});
+        if (e.target.id==="email") this.setState({email:value});
     }
 
     // handle row interaction
     handleCellClick(rowNum,columnNum) {
         var _this = this;
-        if (columnNum===3) {
+        if (columnNum===4) {
             var deleteURL = host+"/student?id="+this.state.items[rowNum].id;
             axios.delete(deleteURL).then(function(result){});    
         } else {
@@ -112,6 +115,7 @@ export default class Main extends React.Component {
 		        >
 				<TextField hintText="First Name" id="first_name" onChange={this.handleInputChange}/><br />
 				<TextField hintText="Last Name" id="last_name" onChange={this.handleInputChange} /><br />
+                <TextField hintText="Email" id="email" onChange={this.handleInputChange} /><br />
 				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleCancel}/>
 				<FlatButton label="Submit" primary={false} onTouchTap={this.handleSubmit}/>
         	</Dialog>            
@@ -125,6 +129,7 @@ export default class Main extends React.Component {
                         <TableRow>
                         <TableHeaderColumn>First Name</TableHeaderColumn>
                         <TableHeaderColumn>Last Name</TableHeaderColumn>
+                        <TableHeaderColumn>Email</TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
                       </TableRow>
                     </TableHeader>
@@ -134,8 +139,9 @@ export default class Main extends React.Component {
 					return(
 
                          <TableRow key={student.id}>
-                            <TableRowColumn><TextField hintText="First Name" defaultValue={student.first_name} /></TableRowColumn>
+                            <TableRowColumn>{student.first_name}</TableRowColumn>
                             <TableRowColumn>{student.last_name}</TableRowColumn>
+                            <TableRowColumn>{student.email}</TableRowColumn>
 							<TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
                         </TableRow>
 
