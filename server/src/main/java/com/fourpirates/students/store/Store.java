@@ -19,6 +19,7 @@ public class Store {
 		Map<String,String> s = new HashMap<String,String>();
 		s.put("first_name", "Dave");
 		s.put("last_name", "Evans");
+		s.put("email", "dummy@mail.com");
 		String id = UUID.randomUUID().toString();
 		STUDENTS.put(id,s);
 	}
