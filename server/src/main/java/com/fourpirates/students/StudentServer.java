@@ -23,7 +23,7 @@ public class StudentServer {
 
 	public StudentServer() {
 		try {
-			Server server = new Server(8081);
+			Server server = new Server(8080);
 
 //			HashSessionIdManager idmanager = new HashSessionIdManager();
 //			server.setSessionIdManager(idmanager);
