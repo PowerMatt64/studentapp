@@ -33,7 +33,6 @@ public class Store {
 	
 	public void removeStudent(String id) throws Exception {
 		students.findOneAndDelete(new Document().append("_id", new ObjectId(id)));
-		//STUDENTS.remove(id);
 		QUEUE.put(id);
 	}
 	public String addStudent(Map<String,String> pstudent) throws Exception {
@@ -44,14 +43,17 @@ public class Store {
 		QUEUE.put(id);
 		return id;
 	}
-	public String setStudent(String id,Map<String,String> student) throws Exception {
-		//STUDENTS.put(id,student);
-		QUEUE.put(id);
-		return id;
-	}
 	
 	public String waitUpdate() throws InterruptedException {
 		return QUEUE.take();
+	}
+	
+	public String setStudent(String id,Map<String,String> student) throws Exception {
+		Document updatedStudent = new Document();
+		updatedStudent.putAll(student);
+		students.findOneAndReplace(new Document().append("_id", new ObjectId(id)),updatedStudent);
+		QUEUE.put(id);
+		return id;
 	}
 	
 	public Map<String,Map<String,Object>> getStudents() {
