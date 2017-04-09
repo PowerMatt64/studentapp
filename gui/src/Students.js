@@ -6,6 +6,7 @@ import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import axios from 'axios';
 import ActionDelete from 'material-ui/svg-icons/action/delete';
+import ActionEdit from 'material-ui/svg-icons/image/edit';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 import IconButton from 'material-ui/IconButton';
 
@@ -20,10 +21,12 @@ export default class Students extends React.Component {
         this.state = {
             items: [],
             addDialogOpen:false,
+            title:'Add Student',
             first_name:'',
             last_name:'',
             email:'',
-            grade:''
+            grade:'',
+            id:''
         }
     	this.handleCancel = this.handleCancel.bind(this);
     	this.handleSubmit = this.handleSubmit.bind(this);
@@ -48,6 +51,12 @@ export default class Students extends React.Component {
 
     // handle new student
 	onAddHandler() {
+		this.setState({title:'Add Student'});
+		this.setState({first_name:''});
+		this.setState({last_name:''});
+		this.setState({email:''});
+		this.setState({grade:''});
+		this.setState({id:'-1'});
  		this.setState({addDialogOpen: true});
 	}
 	handleCancel() {
@@ -56,7 +65,7 @@ export default class Students extends React.Component {
 	handleSubmit(e) {
         var _this = this;
 		axios.post(host+"/student",{
-				id:-1,
+				id:this.state.id,
 				first_name:this.state.first_name,
 				last_name:this.state.last_name,
                 email:this.state.email,
@@ -76,10 +85,20 @@ export default class Students extends React.Component {
     // handle row interaction
     handleCellClick(rowNum,columnNum) {
         var _this = this;
-        if (columnNum===5) {
+        if (columnNum===6) {
             var deleteURL = host+"/student?id="+this.state.items[rowNum].id;
             axios.delete(deleteURL).then(function(result){});
-        } else {
+        } else if (columnNum===5) {
+        	this.setState({title:'Edit Student'});
+        	this.setState({first_name:this.state.items[rowNum].first_name});
+        	this.setState({last_name:this.state.items[rowNum].last_name});
+        	this.setState({email:this.state.items[rowNum].email});
+        	this.setState({grade:this.state.items[rowNum].grade});
+        	this.setState({id:this.state.items[rowNum].id});
+        	this.setState({addDialogOpen: true});
+        } else{
+        	
+         
             //if (columnNum===1) this.state.items[rowNum].first_name='fred';
             //if (columnNum===2) this.state.items[rowNum].last_name='jones';
             /*
@@ -110,15 +129,15 @@ export default class Students extends React.Component {
 
 
             <Dialog
-		          title="Add Student"
+		          title={this.state.title}
 		          modal={true}
 		          onRequestClose={this.handleClose}
 		          open={this.state.addDialogOpen}
 		        >
-				<TextField hintText="First Name" id="first_name" onChange={this.handleInputChange}/><br />
-				<TextField hintText="Last Name" id="last_name" onChange={this.handleInputChange} /><br />
-                <TextField hintText="Email" id="email" onChange={this.handleInputChange} /><br />
-                <TextField hintText="Grade" id="grade" onChange={this.handleInputChange} /><br />
+				<TextField hintText="First Name" id="first_name" defaultValue={this.state.first_name} onChange={this.handleInputChange}/><br />
+				<TextField hintText="Last Name" id="last_name" defaultValue={this.state.last_name} onChange={this.handleInputChange} /><br />
+                <TextField hintText="Email" id="email" defaultValue={this.state.email} onChange={this.handleInputChange} /><br />
+                <TextField hintText="Grade" id="grade" defaultValue={this.state.grade} onChange={this.handleInputChange} /><br />
 				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleCancel}/>
 				<FlatButton label="Submit" primary={false} onTouchTap={this.handleSubmit}/>
         	</Dialog>
@@ -145,6 +164,7 @@ export default class Students extends React.Component {
                             <TableRowColumn>{student.last_name}</TableRowColumn>
                             <TableRowColumn>{student.email}</TableRowColumn>
                             <TableRowColumn>{student.grade}</TableRowColumn>
+                            <TableRowColumn><IconButton><ActionEdit /></IconButton></TableRowColumn>
 							<TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
                         </TableRow>
 
