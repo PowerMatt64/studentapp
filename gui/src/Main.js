@@ -25,6 +25,8 @@ export default class Main extends React.Component {
 
     // handle realtime updates / component mount
     componentDidMount() {
+		// default to students view
+		ReactDOM.findDOMNode(this.refs.students).style.display='block';
     }
 
     // handle menu
