@@ -21,6 +21,7 @@ export default class Students extends React.Component {
         this.state = {
             items: [],
             addDialogOpen:false,
+            confirmDialogOpen:false,
             title:'Add Student',
             first_name:'',
             last_name:'',
@@ -29,6 +30,8 @@ export default class Students extends React.Component {
             id:''
         }
     	this.handleCancel = this.handleCancel.bind(this);
+        this.handleConfirmCancel = this.handleConfirmCancel.bind(this);
+        this.handleConfirmSubmit = this.handleConfirmSubmit.bind(this);
     	this.handleSubmit = this.handleSubmit.bind(this);
     	this.handleInputChange = this.handleInputChange.bind(this);
         this.handleCellClick = this.handleCellClick.bind(this);
@@ -62,6 +65,9 @@ export default class Students extends React.Component {
 	handleCancel() {
 	    this.setState({addDialogOpen: false});
 	}
+	handleConfirmCancel() {
+	    this.setState({confirmDialogOpen: false});
+	}
 	handleSubmit(e) {
         var _this = this;
 		axios.post(host+"/student",{
@@ -74,6 +80,11 @@ export default class Students extends React.Component {
         });
 	    this.setState({addDialogOpen: false});
     }
+	handleConfirmSubmit(){
+		var deleteURL = host+"/student?id="+this.state.id;
+        axios.delete(deleteURL).then(function(result){});
+        this.setState({confirmDialogOpen:false});
+	}
 	handleInputChange(e) {
         let value = e.target.value;
 		if (e.target.id==="first_name") this.setState({first_name:value});
@@ -86,8 +97,10 @@ export default class Students extends React.Component {
     handleCellClick(rowNum,columnNum) {
         var _this = this;
         if (columnNum===6) {
-            var deleteURL = host+"/student?id="+this.state.items[rowNum].id;
-            axios.delete(deleteURL).then(function(result){});
+        	this.setState({id:this.state.items[rowNum].id});
+        	this.setState({first_name:this.state.items[rowNum].first_name});
+        	this.setState({confirmDialogOpen:true});
+        	
         } else if (columnNum===5) {
         	this.setState({title:'Edit Student'});
         	this.setState({first_name:this.state.items[rowNum].first_name});
@@ -131,7 +144,7 @@ export default class Students extends React.Component {
             <Dialog
 		          title={this.state.title}
 		          modal={true}
-		          onRequestClose={this.handleClose}
+		          
 		          open={this.state.addDialogOpen}
 		        >
 				<TextField hintText="First Name" id="first_name" defaultValue={this.state.first_name} onChange={this.handleInputChange}/><br />
@@ -141,6 +154,15 @@ export default class Students extends React.Component {
 				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleCancel}/>
 				<FlatButton label="Submit" primary={false} onTouchTap={this.handleSubmit}/>
         	</Dialog>
+				<Dialog
+					title={'Are you sure you want to delete '+this.state.first_name+'?'}
+					modal={true}
+					
+					open={this.state.confirmDialogOpen}
+				>
+				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleConfirmCancel}/>
+				<FlatButton label="Submit" primary={false} onTouchTap={this.handleConfirmSubmit}/>
+				</Dialog>
 
                 <FloatingActionButton style={fabStyle} onTouchTap={() => { this.onAddHandler(); }}><ContentAdd /></FloatingActionButton>
 
