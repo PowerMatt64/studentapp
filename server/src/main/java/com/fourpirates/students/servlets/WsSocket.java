@@ -94,7 +94,8 @@ public class WsSocket extends WebSocketServlet implements WebSocketListener,Runn
 			map.append("\"id\":"+gson.toJson(se.getKey())+",");
 			map.append("\"first_name\":"+gson.toJson(se.getValue().get("first_name"))+",");
 			map.append("\"last_name\":"+gson.toJson(se.getValue().get("last_name"))+",");
-			map.append("\"email\":"+gson.toJson(se.getValue().get("email")));
+			map.append("\"email\":"+gson.toJson(se.getValue().get("email"))+",");
+			map.append("\"grade\":"+gson.toJson(se.getValue().get("grade")));
 			map.append("}");
 			c++;
 		}
