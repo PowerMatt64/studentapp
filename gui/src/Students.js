@@ -100,7 +100,7 @@ export default class Students extends React.Component {
         	this.setState({id:this.state.items[rowNum].id});
         	this.setState({first_name:this.state.items[rowNum].first_name});
         	this.setState({confirmDialogOpen:true});
-        	
+
         } else if (columnNum===5) {
         	this.setState({title:'Edit Student'});
         	this.setState({first_name:this.state.items[rowNum].first_name});
@@ -110,8 +110,8 @@ export default class Students extends React.Component {
         	this.setState({id:this.state.items[rowNum].id});
         	this.setState({addDialogOpen: true});
         } else{
-        	
-         
+
+
             //if (columnNum===1) this.state.items[rowNum].first_name='fred';
             //if (columnNum===2) this.state.items[rowNum].last_name='jones';
             /*
@@ -144,7 +144,7 @@ export default class Students extends React.Component {
             <Dialog
 		          title={this.state.title}
 		          modal={true}
-		          
+
 		          open={this.state.addDialogOpen}
 		        >
 				<TextField hintText="First Name" id="first_name" defaultValue={this.state.first_name} onChange={this.handleInputChange}/><br />
@@ -157,7 +157,7 @@ export default class Students extends React.Component {
 				<Dialog
 					title={'Are you sure you want to delete '+this.state.first_name+'?'}
 					modal={true}
-					
+
 					open={this.state.confirmDialogOpen}
 				>
 				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleConfirmCancel}/>
@@ -173,6 +173,7 @@ export default class Students extends React.Component {
                         <TableHeaderColumn>Last Name</TableHeaderColumn>
                         <TableHeaderColumn>Email</TableHeaderColumn>
                         <TableHeaderColumn>Grade</TableHeaderColumn>
+                        <TableHeaderColumn></TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
                       </TableRow>
                     </TableHeader>
