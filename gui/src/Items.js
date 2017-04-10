@@ -136,8 +136,8 @@ export default class Items extends React.Component {
 		          open={this.state.addDialogOpen}
 		        >
 				<TextField hintText="Name" fullWidth={true} multiLine={true} id="name" defaultValue={this.state.name} onChange={this.handleInputChange}/><br />
-				<TextField hintText="Min. Bid" id="min_bid" defaultValue={this.state.min_bid} onChange={this.handleInputChange} /><br />
-                <TextField hintText="Buyout" id="buyout" defaultValue={this.state.buyout} onChange={this.handleInputChange} /><br />
+				<TextField hintText="Min. Bid" id="min_bid" type="number" defaultValue={this.state.min_bid} onChange={this.handleInputChange} /><br />
+                <TextField hintText="Buyout" id="buyout" type="number" defaultValue={this.state.buyout} onChange={this.handleInputChange} /><br />
                 <TextField disabled={true} hintText="Owner" id="owner" defaultValue={this.state.owner} onChange={this.handleInputChange} /><br />
 				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleCancel}/>
 				<FlatButton label="Submit" primary={false} onTouchTap={this.handleSubmit}/>
