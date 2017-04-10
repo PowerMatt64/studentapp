@@ -87,15 +87,15 @@ public class WsSocket extends WebSocketServlet implements WebSocketListener,Runn
 	}
 
 	private String getStudents() {
-		return getMapAsJson(Store.getInstance().getStudents());
+		return getMapAsJson("students",Store.getInstance().getStudents());
 	}
 	private String getItems() {
-		return getMapAsJson(Store.getInstance().getItems());
+		return getMapAsJson("items",Store.getInstance().getItems());
 	}
 	
-	private String getMapAsJson(Map<String, Map<String, Object>> emap) {
+	private String getMapAsJson(String typeName, Map<String, Map<String, Object>> emap) {
 		StringBuilder map = new StringBuilder();
-		map.append("{\"a\":\"load\",\"items\":[");
+		map.append("{\"a\":\""+typeName+"\",\"items\":[");
 		int c=0;
 		for (Entry<String, Map<String, Object>> se:emap.entrySet()) {
 			if (c>0) map.append(',');
