@@ -96,6 +96,7 @@ public class Store {
 			for (Entry<String, Object> r2:d.entrySet()) {
 				r.put(r2.getKey(),r2.getValue());
 			}
+			r.put("id", d.getObjectId("_id").toHexString());
 			returnMap.put(d.getObjectId("_id").toHexString(), r);
 		}
 		
