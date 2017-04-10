@@ -1,5 +1,6 @@
 import React from 'react';
 import Students from './Students';
+import Items from './Items';
 import AppBar from 'material-ui/AppBar';
 import IconButton from 'material-ui/IconButton';
 import ActionExit from 'material-ui/svg-icons/action/exit-to-app';
@@ -36,7 +37,9 @@ export default class Main extends React.Component {
 
 	routeHandler(event, menu, obj) {
 		ReactDOM.findDOMNode(this.refs.students).style.display='none';
+		ReactDOM.findDOMNode(this.refs.items).style.display='none';
 		if (menu==='studentsMenu') ReactDOM.findDOMNode(this.refs.students).style.display='block';
+		if (menu==='itemsMenu') ReactDOM.findDOMNode(this.refs.items).style.display='block';
 		this.setState({open: false});
 	}
 
@@ -50,7 +53,7 @@ export default class Main extends React.Component {
         return (
             <div>
 
-                <AppBar title="Simple Student App" onLeftIconButtonTouchTap={this.handleHamburgerMenuClick.bind(this)}
+                <AppBar title="Cactus Auction House" onLeftIconButtonTouchTap={this.handleHamburgerMenuClick.bind(this)}
                 			iconElementRight={<IconButton href="/logout" tooltip="Logout"><ActionExit /></IconButton>}/>
 
 
@@ -58,11 +61,12 @@ export default class Main extends React.Component {
 					<AppBar title="Menu" showMenuIconButton={false}/>
 					<Menu onChange={this.routeHandler.bind(this)}>
 						<MenuItem value="studentsMenu" leftIcon={<FontIcon className="material-icons" >supervisor_account</FontIcon>}>Students</MenuItem>
+						<MenuItem value="itemsMenu" leftIcon={<FontIcon className="material-icons" >whatshot</FontIcon>}>Auction Items</MenuItem>
                     </Menu>
-
                 </Drawer>
 
 				<div ref="students" style={contentStyle}><Students/></div>
+				<div ref="items" style={contentStyle}><Items/></div>
 
             </div>
         )

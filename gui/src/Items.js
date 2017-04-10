@@ -14,7 +14,7 @@ import IconButton from 'material-ui/IconButton';
 //const host = "";
 const host = "http://localhost:8080";
 
-export default class Students extends React.Component {
+export default class Items extends React.Component {
 
 	constructor(props) {
 		super(props);
