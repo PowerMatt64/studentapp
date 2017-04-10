@@ -57,12 +57,14 @@ public class WsSocket extends WebSocketServlet implements WebSocketListener,Runn
 			while (isRunning) {
 				try {
 
-					String newId = Store.getInstance().waitUpdate();
+					String type = Store.getInstance().waitUpdate();
 
 					for (Session s : clients) {
 						if (s.isOpen()) {
-							s.getRemote().sendString(getStudents());
-							//s.getRemote().sendString("{\"a\":\"update\",\"id\":\""+newId+"\"}");
+							if (type.equalsIgnoreCase("item"))
+								s.getRemote().sendString(getItems());
+							else
+								s.getRemote().sendString(getStudents());
 						} else {
 							System.out.println("Removing "+s);
 							clients.remove(s);
@@ -81,22 +83,23 @@ public class WsSocket extends WebSocketServlet implements WebSocketListener,Runn
 	}
 
 	public void onWebSocketClose(int paramInt, String reason) {
-		System.out.println("onWebSocketClose:"+paramInt+"("+reason+")");
+		//System.out.println("onWebSocketClose:"+paramInt+"("+reason+")");
 	}
 
 	private String getStudents() {
+		return getMapAsJson(Store.getInstance().getStudents());
+	}
+	private String getItems() {
+		return getMapAsJson(Store.getInstance().getItems());
+	}
+	
+	private String getMapAsJson(Map<String, Map<String, Object>> emap) {
 		StringBuilder map = new StringBuilder();
 		map.append("{\"a\":\"load\",\"items\":[");
 		int c=0;
-		for (Entry<String, Map<String, Object>> se:Store.getInstance().getStudents().entrySet()) {
+		for (Entry<String, Map<String, Object>> se:emap.entrySet()) {
 			if (c>0) map.append(',');
-			map.append("{");
-			map.append("\"id\":"+gson.toJson(se.getKey())+",");
-			map.append("\"first_name\":"+gson.toJson(se.getValue().get("first_name"))+",");
-			map.append("\"last_name\":"+gson.toJson(se.getValue().get("last_name"))+",");
-			map.append("\"email\":"+gson.toJson(se.getValue().get("email"))+",");
-			map.append("\"grade\":"+gson.toJson(se.getValue().get("grade")));
-			map.append("}");
+			map.append(gson.toJson(se.getValue()));
 			c++;
 		}
 		map.append("]}");
@@ -113,7 +116,8 @@ public class WsSocket extends WebSocketServlet implements WebSocketListener,Runn
 	}
 
 	public void onWebSocketError(Throwable err) {
-		err.printStackTrace();
+		//err.printStackTrace();
+		System.out.println("onWebSocketError:"+err);
 	}
 
 	public void onWebSocketBinary(byte[] arg0, int arg1, int arg2) {

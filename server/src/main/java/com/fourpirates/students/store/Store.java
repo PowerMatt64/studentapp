@@ -36,12 +36,12 @@ public class Store {
 
 	public void removeItem(String id) throws Exception {
 		items.findOneAndDelete(new Document().append("_id", new ObjectId(id)));
-		QUEUE.put(id);
+		QUEUE.put("item");
 	}
 	
 	public void removeStudent(String id) throws Exception {
 		students.findOneAndDelete(new Document().append("_id", new ObjectId(id)));
-		QUEUE.put(id);
+		QUEUE.put("student");
 	}
 	
 	public String addStudent(Map<String,String> pstudent) throws Exception {
@@ -49,7 +49,7 @@ public class Store {
 		student.putAll(pstudent);
 		students.insertOne(student);
 		String id = student.getObjectId("_id").toHexString();
-		QUEUE.put(id);
+		QUEUE.put("student");
 		return id;
 	}
 
@@ -58,7 +58,7 @@ public class Store {
 		item.putAll(pitem);
 		items.insertOne(item);
 		String id = item.getObjectId("_id").toHexString();
-		QUEUE.put(id);
+		QUEUE.put("item");
 		return id;
 	}
 	
@@ -70,7 +70,7 @@ public class Store {
 		Document updatedStudent = new Document();
 		updatedStudent.putAll(student);
 		students.findOneAndReplace(new Document().append("_id", new ObjectId(id)),updatedStudent);
-		QUEUE.put(id);
+		QUEUE.put("student");
 		return id;
 	}
 
@@ -78,7 +78,7 @@ public class Store {
 		Document updatedItem = new Document();
 		updatedItem.putAll(item);
 		items.findOneAndReplace(new Document().append("_id", new ObjectId(id)),updatedItem);
-		QUEUE.put(id);
+		QUEUE.put("item");
 		return id;
 	}
 	
