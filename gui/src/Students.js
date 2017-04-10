@@ -44,7 +44,7 @@ export default class Students extends React.Component {
         this.connection.onmessage = evt => {
             console.log(evt.data);
             var msg = JSON.parse(evt.data);
-            if (msg.a==='load') {
+            if (msg.a==='students') {
                 _this.setState({items: msg.items});
             } else {
                 console.log('r/t update');

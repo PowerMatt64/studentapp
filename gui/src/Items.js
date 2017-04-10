@@ -22,11 +22,11 @@ export default class Items extends React.Component {
             items: [],
             addDialogOpen:false,
             confirmDialogOpen:false,
-            title:'Add Student',
-            first_name:'',
-            last_name:'',
-            email:'',
-            grade:'',
+            title:'Add Item',
+            name:'',
+            min_bid:'',
+            buyout:'',
+            owner:'',
             id:''
         }
     	this.handleCancel = this.handleCancel.bind(this);
@@ -44,7 +44,7 @@ export default class Items extends React.Component {
         this.connection.onmessage = evt => {
             console.log(evt.data);
             var msg = JSON.parse(evt.data);
-            if (msg.a==='load') {
+            if (msg.a==='items') {
                 _this.setState({items: msg.items});
             } else {
                 console.log('r/t update');
@@ -52,13 +52,13 @@ export default class Items extends React.Component {
         }
     }
 
-    // handle new student
+    // handle new item
 	onAddHandler() {
-		this.setState({title:'Add Student'});
-		this.setState({first_name:''});
-		this.setState({last_name:''});
-		this.setState({email:''});
-		this.setState({grade:''});
+		this.setState({title:'Add Item'});
+		this.setState({name:''});
+		this.setState({min_bid:''});
+		this.setState({buyout:''});
+		this.setState({owner:''});
 		this.setState({id:'-1'});
  		this.setState({addDialogOpen: true});
 	}
@@ -70,43 +70,44 @@ export default class Items extends React.Component {
 	}
 	handleSubmit(e) {
         var _this = this;
-		axios.post(host+"/student",{
+		axios.post(host+"/item",{
 				id:this.state.id,
-				first_name:this.state.first_name,
-				last_name:this.state.last_name,
-                email:this.state.email,
-                grade:this.state.grade
+				name:this.state.name,
+				min_bid:this.state.min_bid,
+                buyout:this.state.buyout,
+                owner:this.state.owner
 				}).then(function(result){
         });
 	    this.setState({addDialogOpen: false});
     }
 	handleConfirmSubmit(){
-		var deleteURL = host+"/student?id="+this.state.id;
+		var deleteURL = host+"/item?id="+this.state.id;
         axios.delete(deleteURL).then(function(result){});
         this.setState({confirmDialogOpen:false});
 	}
 	handleInputChange(e) {
         let value = e.target.value;
-		if (e.target.id==="first_name") this.setState({first_name:value});
-		if (e.target.id==="last_name") this.setState({last_name:value});
-        if (e.target.id==="email") this.setState({email:value});
-        if (e.target.id==="grade") this.setState({grade:value});
+		if (e.target.id==="name") this.setState({name:value});
+		if (e.target.id==="min_bid") this.setState({min_bid:value});
+        if (e.target.id==="buyout") this.setState({buyout:value});
+        if (e.target.id==="owner") this.setState({owner:value});
     }
 
     // handle row interaction
     handleCellClick(rowNum,columnNum) {
         var _this = this;
         if (columnNum===6) {
+        	console.log(this.state.items[rowNum]);
         	this.setState({id:this.state.items[rowNum].id});
-        	this.setState({first_name:this.state.items[rowNum].first_name});
+        	this.setState({name:this.state.items[rowNum].name});
         	this.setState({confirmDialogOpen:true});
 
         } else if (columnNum===5) {
-        	this.setState({title:'Edit Student'});
-        	this.setState({first_name:this.state.items[rowNum].first_name});
-        	this.setState({last_name:this.state.items[rowNum].last_name});
-        	this.setState({email:this.state.items[rowNum].email});
-        	this.setState({grade:this.state.items[rowNum].grade});
+        	this.setState({title:'Edit Item'});
+        	this.setState({name:this.state.items[rowNum].name});
+        	this.setState({min_bid:this.state.items[rowNum].min_bid});
+        	this.setState({buyout:this.state.items[rowNum].buyout});
+        	this.setState({owner:this.state.items[rowNum].owner});
         	this.setState({id:this.state.items[rowNum].id});
         	this.setState({addDialogOpen: true});
         }
@@ -134,15 +135,15 @@ export default class Items extends React.Component {
 
 		          open={this.state.addDialogOpen}
 		        >
-				<TextField hintText="First Name" id="first_name" defaultValue={this.state.first_name} onChange={this.handleInputChange}/><br />
-				<TextField hintText="Last Name" id="last_name" defaultValue={this.state.last_name} onChange={this.handleInputChange} /><br />
-                <TextField hintText="Email" id="email" defaultValue={this.state.email} onChange={this.handleInputChange} /><br />
-                <TextField hintText="Grade" id="grade" defaultValue={this.state.grade} onChange={this.handleInputChange} /><br />
+				<TextField hintText="Name" fullWidth={true} multiLine={true} id="name" defaultValue={this.state.name} onChange={this.handleInputChange}/><br />
+				<TextField hintText="Min. Bid" id="min_bid" defaultValue={this.state.min_bid} onChange={this.handleInputChange} /><br />
+                <TextField hintText="Buyout" id="buyout" defaultValue={this.state.buyout} onChange={this.handleInputChange} /><br />
+                <TextField disabled={true} hintText="Owner" id="owner" defaultValue={this.state.owner} onChange={this.handleInputChange} /><br />
 				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleCancel}/>
 				<FlatButton label="Submit" primary={false} onTouchTap={this.handleSubmit}/>
         	</Dialog>
 				<Dialog
-					title={'Are you sure you want to delete '+this.state.first_name+'?'}
+					title={'Are you sure you want to delete '+this.state.name+'?'}
 					modal={true}
 
 					open={this.state.confirmDialogOpen}
@@ -156,24 +157,24 @@ export default class Items extends React.Component {
                 <Table onCellClick={this.handleCellClick}>
                     <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
                         <TableRow>
-                        <TableHeaderColumn>First Name</TableHeaderColumn>
-                        <TableHeaderColumn>Last Name</TableHeaderColumn>
-                        <TableHeaderColumn>Email</TableHeaderColumn>
-                        <TableHeaderColumn>Grade</TableHeaderColumn>
+                        <TableHeaderColumn>Name</TableHeaderColumn>
+                        <TableHeaderColumn>Min. Bid</TableHeaderColumn>
+                        <TableHeaderColumn>Buyout</TableHeaderColumn>
+                        <TableHeaderColumn>Owner</TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
                       </TableRow>
                     </TableHeader>
 
                <TableBody stripedRows={false} displayRowCheckbox={false}>
-				{this.state.items.map(function(student) {
+				{this.state.items.map(function(item) {
 					return(
 
-                         <TableRow key={student.id}>
-                            <TableRowColumn>{student.first_name}</TableRowColumn>
-                            <TableRowColumn>{student.last_name}</TableRowColumn>
-                            <TableRowColumn>{student.email}</TableRowColumn>
-                            <TableRowColumn>{student.grade}</TableRowColumn>
+                         <TableRow key={item.id}>
+                            <TableRowColumn>{item.name}</TableRowColumn>
+                            <TableRowColumn>{item.min_bid}</TableRowColumn>
+                            <TableRowColumn>{item.buyout}</TableRowColumn>
+                            <TableRowColumn>{item.owner}</TableRowColumn>
                             <TableRowColumn><IconButton><ActionEdit /></IconButton></TableRowColumn>
 							<TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
                         </TableRow>
