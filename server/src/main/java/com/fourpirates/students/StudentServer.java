@@ -12,6 +12,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
+import com.fourpirates.students.servlets.ItemServlet;
 import com.fourpirates.students.servlets.StudentServlet;
 import com.fourpirates.students.servlets.WsSocket;
 
@@ -44,6 +45,7 @@ public class StudentServer {
 						"Accept,Accept-Version,Authorization,Content-Length,Content-MD5,Content-Type,Date,"
 								+ "Origin,X-Access-Token,X-Api-Version,X-CSRF-Token,X-File-Name,X-Requested-With");
 			}
+			context.addServlet(ItemServlet.class, "/item");
 			context.addServlet(StudentServlet.class, "/student");
 			context.addServlet(WsSocket.class, "/studentws");
 
