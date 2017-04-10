@@ -109,6 +109,7 @@ public class WsSocket extends WebSocketServlet implements WebSocketListener,Runn
 	public void onWebSocketConnect(Session session) {
 		try {
 			session.getRemote().sendString(getStudents());
+			session.getRemote().sendString(getItems());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
