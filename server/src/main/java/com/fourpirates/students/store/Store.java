@@ -26,7 +26,7 @@ public class Store {
 	public static Store getInstance(){return INSTANCE;}
 	
 	private Store() {
-		MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+		MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://192.168.99.152:27017"));
 		MongoDatabase database = mongoClient.getDatabase("cactus");
 
 		students = database.getCollection("students");
