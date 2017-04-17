@@ -9,6 +9,8 @@ import ActionDelete from 'material-ui/svg-icons/action/delete';
 import ActionEdit from 'material-ui/svg-icons/image/edit';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 import IconButton from 'material-ui/IconButton';
+import DatePicker from 'material-ui/DatePicker';
+
 
 
 //const host = "";
@@ -27,7 +29,8 @@ export default class Items extends React.Component {
             min_bid:'',
             buyout:'',
             owner:'',
-            id:''
+            id:'',
+            start_date:new Date()
         }
     	this.handleCancel = this.handleCancel.bind(this);
         this.handleConfirmCancel = this.handleConfirmCancel.bind(this);
@@ -59,6 +62,7 @@ export default class Items extends React.Component {
 		this.setState({min_bid:''});
 		this.setState({buyout:''});
 		this.setState({owner:''});
+		this.setState({start_date:new Date()});
 		this.setState({id:'-1'});
  		this.setState({addDialogOpen: true});
 	}
@@ -75,7 +79,8 @@ export default class Items extends React.Component {
 				name:this.state.name,
 				min_bid:this.state.min_bid,
                 buyout:this.state.buyout,
-                owner:this.state.owner
+                owner:this.state.owner,
+                start_date:this.state.start_date
 				}).then(function(result){
         });
 	    this.setState({addDialogOpen: false});
@@ -85,30 +90,40 @@ export default class Items extends React.Component {
         axios.delete(deleteURL).then(function(result){});
         this.setState({confirmDialogOpen:false});
 	}
-	handleInputChange(e) {
+	handleInputChange(e,d) {
+		if (e.target.id==="start_date") {
+			this.setState({start_date:d});
+			return;
+		}
         let value = e.target.value;
 		if (e.target.id==="name") this.setState({name:value});
 		if (e.target.id==="min_bid") this.setState({min_bid:value});
         if (e.target.id==="buyout") this.setState({buyout:value});
         if (e.target.id==="owner") this.setState({owner:value});
+        
     }
+	
 
     // handle row interaction
     handleCellClick(rowNum,columnNum) {
         var _this = this;
-        if (columnNum===6) {
+        if (columnNum===7) {
         	console.log(this.state.items[rowNum]);
         	this.setState({id:this.state.items[rowNum].id});
         	this.setState({name:this.state.items[rowNum].name});
         	this.setState({confirmDialogOpen:true});
 
-        } else if (columnNum===5) {
+        } else if (columnNum===6) {
         	this.setState({title:'Edit Item'});
         	this.setState({name:this.state.items[rowNum].name});
         	this.setState({min_bid:this.state.items[rowNum].min_bid});
         	this.setState({buyout:this.state.items[rowNum].buyout});
         	this.setState({owner:this.state.items[rowNum].owner});
         	this.setState({id:this.state.items[rowNum].id});
+        	if (this.state.items[rowNum].start_date)
+        		this.setState({start_date:this.state.items[rowNum].start_date});
+        	else
+        		this.setState({start_date:new Date()});
         	this.setState({addDialogOpen: true});
         }
     }
@@ -139,6 +154,7 @@ export default class Items extends React.Component {
 				<TextField hintText="Min. Bid" id="min_bid" type="number" defaultValue={this.state.min_bid} onChange={this.handleInputChange} /><br />
                 <TextField hintText="Buyout" id="buyout" type="number" defaultValue={this.state.buyout} onChange={this.handleInputChange} /><br />
                 <TextField disabled={true} hintText="Owner" id="owner" defaultValue={this.state.owner} onChange={this.handleInputChange} /><br />
+                <DatePicker hintText="Start Date" mode="landscape" id="start_date" defaultDate={this.state.start_date} onChange={this.handleInputChange} /><br />
 				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleCancel}/>
 				<FlatButton label="Submit" primary={false} onTouchTap={this.handleSubmit}/>
         	</Dialog>
@@ -161,6 +177,7 @@ export default class Items extends React.Component {
                         <TableHeaderColumn>Min. Bid</TableHeaderColumn>
                         <TableHeaderColumn>Buyout</TableHeaderColumn>
                         <TableHeaderColumn>Owner</TableHeaderColumn>
+                        <TableHeaderColumn>Start Date</TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
                       </TableRow>
@@ -175,6 +192,7 @@ export default class Items extends React.Component {
                             <TableRowColumn>{item.min_bid}</TableRowColumn>
                             <TableRowColumn>{item.buyout}</TableRowColumn>
                             <TableRowColumn>{item.owner}</TableRowColumn>
+                            <TableRowColumn>{item.start_date}</TableRowColumn>
                             <TableRowColumn><IconButton><ActionEdit /></IconButton></TableRowColumn>
 							<TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
                         </TableRow>
