@@ -14,8 +14,8 @@ import Menu from 'material-ui/Menu';
 import FontIcon from 'material-ui/FontIcon';
 import ReactDOM from 'react-dom';
 import GoogleLogin from 'react-google-login';
-
-
+import cookie from "react-cookie";
+import axios from 'axios';
 
 //const host = "";
 const host = "http://localhost:8080";
@@ -34,26 +34,34 @@ export default class Main extends React.Component {
 			displayName:null,
 			photoURL:null,
 			email:null,
-			connection:new WebSocket('ws://localhost:8080/studentws')
+			connection:null,
+			accessToken:null
         }
         this.responseGoogleSuccess = this.responseGoogleSuccess.bind(this);
         this.responseGoogleFail = this.responseGoogleFail.bind(this);
+        this.getConnection = this.getConnection.bind(this);
+        this.logout = this.logout.bind(this);
     }
 
     // handle realtime updates / component mount
     componentDidMount() {
         var _this = this;
-		_this.state.connection.onmessage = evt => {
-			//console.log(evt.data);
-			var msg = JSON.parse(evt.data);
-			if (msg.a==='students') {
-				_this.setState({students: msg.items});
-			} if (msg.a==='items') {
-				_this.setState({items: msg.items});
-			} else {
-				console.log('r/t update');
-			}
+		
+		var accessToken = cookie.load("access_token");
+		if (accessToken) {
+			axios.get(host+"/auth?at="+accessToken).then(function(result){
+				if (result.data.iv===true) {
+					_this.setState({isLoggedIn:true});
+					_this.setState({displayName:cookie.load("name")});
+					_this.setState({photoURL:cookie.load("image")});
+					_this.setState({email:cookie.load("email")});
+					_this.getConnection(accessToken);
+					ReactDOM.findDOMNode(_this.refs.students).style.display='block';
+				}
+			});
+			
 		}
+		
 		if (this.state.isLoggedIn) {
 			// default to students view
 			ReactDOM.findDOMNode(this.refs.students).style.display='block';
@@ -73,16 +81,55 @@ export default class Main extends React.Component {
 		this.setState({open: false});
 	}
 
+	getConnection(access_token) {
+		var _this = this;
+		
+		_this.setState({accessToken:access_token});
+		
+        _this.state.connection = new WebSocket('ws://localhost:8080/studentws')
+        _this.state.connection.onopen = evt => {
+    		this.state.connection.send("{\"access_token\":\""+access_token+"\"}");
+		}
+		_this.state.connection.onmessage = evt => {
+			var msg = JSON.parse(evt.data);
+			if (msg.a==='students') {
+				_this.setState({students: msg.items});
+			} if (msg.a==='items') {
+				_this.setState({items: msg.items});
+			} else {
+				console.log('r/t update');
+			}
+		}
+	}
+	
 	responseGoogleSuccess(response) {
-		console.log(response.getAuthResponse().access_token);
+		var _this = this;
+
 		this.setState({isLoggedIn:true});
 		this.setState({displayName:response.getBasicProfile().getName()});
 		this.setState({photoURL:response.getBasicProfile().getImageUrl()});
 		this.setState({email:response.getBasicProfile().getEmail()});
 		ReactDOM.findDOMNode(this.refs.students).style.display='block';
-		this.state.connection.send("{\"access_token\":\""+response.getAuthResponse().access_token+"\"}");
+
+
+		cookie.save("access_token", response.getAuthResponse().access_token, {path: "/"});
+		cookie.save("email", response.getBasicProfile().getEmail(), {path: "/"});
+		cookie.save("image", response.getBasicProfile().getImageUrl(), {path: "/"});
+		cookie.save("name", response.getBasicProfile().getName(), {path: "/"});
+        
+		_this.getConnection(response.getAuthResponse().access_token);
+
+	
 	}
 	responseGoogleFail(response) {
+		var _this = this;
+		console.log(response);
+	}
+	
+	logout(a) {
+		var _this = this;
+		_this.state.connection.send("{\"logout\":\""+_this.state.accessToken+"\"}");
+		
 		this.setState({isLoggedIn:false});
 		ReactDOM.findDOMNode(this.refs.students).style.display='none';
 		ReactDOM.findDOMNode(this.refs.items).style.display='none';
@@ -104,7 +151,7 @@ export default class Main extends React.Component {
 
 					;
 		} else {
-			item = <Chip style={{ margin: 'auto' }} onRequestDelete={this.responseGoogleFail}>
+			item = <Chip style={{ margin: 'auto' }} onRequestDelete={this.logout}>
 						<Avatar src={this.state.photoURL} size={40} />
 						{this.state.displayName}
 					</Chip>;
