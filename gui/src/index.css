@@ -2,4 +2,9 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+  background-image: url(./bulldog-sports-logo.png);
+  background-repeat: no-repeat;
+  background-position: center; 
+  background-attachment: fixed;
+  background-size: 356px 356px;
 }

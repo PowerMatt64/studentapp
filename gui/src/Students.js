@@ -19,7 +19,6 @@ export default class Students extends React.Component {
 	constructor(props) {
 		super(props);
         this.state = {
-            items: [],
             addDialogOpen:false,
             confirmDialogOpen:false,
             title:'Add Student',
@@ -40,16 +39,6 @@ export default class Students extends React.Component {
     // handle realtime updates / component mount
     componentDidMount() {
         var _this = this;
-        this.connection = new WebSocket('ws://localhost:8080/studentws');
-        this.connection.onmessage = evt => {
-            console.log(evt.data);
-            var msg = JSON.parse(evt.data);
-            if (msg.a==='students') {
-                _this.setState({items: msg.items});
-            } else {
-                console.log('r/t update');
-            }
-        }
     }
 
     // handle new student
@@ -97,23 +86,23 @@ export default class Students extends React.Component {
     handleCellClick(rowNum,columnNum) {
         var _this = this;
         if (columnNum===6) {
-        	this.setState({id:this.state.items[rowNum].id});
-        	this.setState({first_name:this.state.items[rowNum].first_name});
+        	this.setState({id:this.props.students[rowNum].id});
+        	this.setState({first_name:this.props.students[rowNum].first_name});
         	this.setState({confirmDialogOpen:true});
 
         } else if (columnNum===5) {
         	this.setState({title:'Edit Student'});
-        	this.setState({first_name:this.state.items[rowNum].first_name});
-        	this.setState({last_name:this.state.items[rowNum].last_name});
-        	this.setState({email:this.state.items[rowNum].email});
-        	this.setState({grade:this.state.items[rowNum].grade});
-        	this.setState({id:this.state.items[rowNum].id});
+        	this.setState({first_name:this.props.students[rowNum].first_name});
+        	this.setState({last_name:this.props.students[rowNum].last_name});
+        	this.setState({email:this.props.students[rowNum].email});
+        	this.setState({grade:this.props.students[rowNum].grade});
+        	this.setState({id:this.props.students[rowNum].id});
         	this.setState({addDialogOpen: true});
         }
     }
-
+    
     render() {
-
+    	var _this = this;
 		const fabStyle = {
 		    margin: 0,
 		    top: 'auto',
@@ -166,7 +155,7 @@ export default class Students extends React.Component {
                     </TableHeader>
 
                <TableBody stripedRows={false} displayRowCheckbox={false}>
-				{this.state.items.map(function(student) {
+				{_this.props.students.map(function(student) {
 					return(
 
                          <TableRow key={student.id}>

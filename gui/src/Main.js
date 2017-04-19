@@ -21,16 +21,20 @@ import GoogleLogin from 'react-google-login';
 const host = "http://localhost:8080";
 const googleLoginStyle = { backgroundColor: "#e0e0e0", border:0 };
 
+
 export default class Main extends React.Component {
 
 	constructor(props) {
 		super(props);
         this.state = {
+        	students: [],
+        	items: [],
 			open: false,
 			isLoggedIn: false,
 			displayName:null,
 			photoURL:null,
-			email:null
+			email:null,
+			connection:new WebSocket('ws://localhost:8080/studentws')
         }
         this.responseGoogleSuccess = this.responseGoogleSuccess.bind(this);
         this.responseGoogleFail = this.responseGoogleFail.bind(this);
@@ -38,7 +42,18 @@ export default class Main extends React.Component {
 
     // handle realtime updates / component mount
     componentDidMount() {
-
+        var _this = this;
+		_this.state.connection.onmessage = evt => {
+			//console.log(evt.data);
+			var msg = JSON.parse(evt.data);
+			if (msg.a==='students') {
+				_this.setState({students: msg.items});
+			} if (msg.a==='items') {
+				_this.setState({items: msg.items});
+			} else {
+				console.log('r/t update');
+			}
+		}
 		if (this.state.isLoggedIn) {
 			// default to students view
 			ReactDOM.findDOMNode(this.refs.students).style.display='block';
@@ -59,12 +74,13 @@ export default class Main extends React.Component {
 	}
 
 	responseGoogleSuccess(response) {
-		console.log(response.getBasicProfile());
+		console.log(response.getAuthResponse().access_token);
 		this.setState({isLoggedIn:true});
 		this.setState({displayName:response.getBasicProfile().getName()});
 		this.setState({photoURL:response.getBasicProfile().getImageUrl()});
 		this.setState({email:response.getBasicProfile().getEmail()});
 		ReactDOM.findDOMNode(this.refs.students).style.display='block';
+		this.state.connection.send("{\"access_token\":\""+response.getAuthResponse().access_token+"\"}");
 	}
 	responseGoogleFail(response) {
 		this.setState({isLoggedIn:false});
@@ -118,8 +134,8 @@ export default class Main extends React.Component {
                     </Menu>
                 </Drawer>
 
-				<div ref="students" style={contentStyle}><Students/></div>
-				<div ref="items" style={contentStyle}><Items/></div>
+				<div ref="students" style={contentStyle}><Students students={this.state.students}/></div>
+				<div ref="items" style={contentStyle}><Items items={this.state.items}/></div>
 
             </div>
         )

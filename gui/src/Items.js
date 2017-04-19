@@ -21,7 +21,6 @@ export default class Items extends React.Component {
 	constructor(props) {
 		super(props);
         this.state = {
-            items: [],
             addDialogOpen:false,
             confirmDialogOpen:false,
             title:'Add Item',
@@ -37,22 +36,14 @@ export default class Items extends React.Component {
         this.handleConfirmSubmit = this.handleConfirmSubmit.bind(this);
     	this.handleSubmit = this.handleSubmit.bind(this);
     	this.handleInputChange = this.handleInputChange.bind(this);
+    	this.handleStartDateInputChange = this.handleStartDateInputChange.bind(this);
         this.handleCellClick = this.handleCellClick.bind(this);
+        this.formatStartDate = this.formatStartDate.bind(this);
     }
 
     // handle realtime updates / component mount
     componentDidMount() {
         var _this = this;
-        this.connection = new WebSocket('ws://localhost:8080/studentws');
-        this.connection.onmessage = evt => {
-            console.log(evt.data);
-            var msg = JSON.parse(evt.data);
-            if (msg.a==='items') {
-                _this.setState({items: msg.items});
-            } else {
-                console.log('r/t update');
-            }
-        }
     }
 
     // handle new item
@@ -90,11 +81,10 @@ export default class Items extends React.Component {
         axios.delete(deleteURL).then(function(result){});
         this.setState({confirmDialogOpen:false});
 	}
+	handleStartDateInputChange(e,d) {
+		this.setState({start_date:d});
+	}
 	handleInputChange(e,d) {
-		if (e.target.id==="start_date") {
-			this.setState({start_date:d});
-			return;
-		}
         let value = e.target.value;
 		if (e.target.id==="name") this.setState({name:value});
 		if (e.target.id==="min_bid") this.setState({min_bid:value});
@@ -108,28 +98,35 @@ export default class Items extends React.Component {
     handleCellClick(rowNum,columnNum) {
         var _this = this;
         if (columnNum===7) {
-        	console.log(this.state.items[rowNum]);
-        	this.setState({id:this.state.items[rowNum].id});
-        	this.setState({name:this.state.items[rowNum].name});
+        	console.log(this.props.items[rowNum]);
+        	this.setState({id:this.props.items[rowNum].id});
+        	this.setState({name:this.props.items[rowNum].name});
         	this.setState({confirmDialogOpen:true});
 
         } else if (columnNum===6) {
         	this.setState({title:'Edit Item'});
-        	this.setState({name:this.state.items[rowNum].name});
-        	this.setState({min_bid:this.state.items[rowNum].min_bid});
-        	this.setState({buyout:this.state.items[rowNum].buyout});
-        	this.setState({owner:this.state.items[rowNum].owner});
-        	this.setState({id:this.state.items[rowNum].id});
-        	if (this.state.items[rowNum].start_date)
-        		this.setState({start_date:this.state.items[rowNum].start_date});
+        	this.setState({name:this.props.items[rowNum].name});
+        	this.setState({min_bid:this.props.items[rowNum].min_bid});
+        	this.setState({buyout:this.props.items[rowNum].buyout});
+        	this.setState({owner:this.props.items[rowNum].owner});
+        	this.setState({id:this.props.items[rowNum].id});
+        	if (this.props.items[rowNum].start_date)
+        		this.setState({start_date:new Date(this.props.items[rowNum].start_date)});
         	else
         		this.setState({start_date:new Date()});
         	this.setState({addDialogOpen: true});
         }
     }
 
+    formatStartDate(d) {
+    	var dateFormat = require('dateformat');
+    	return dateFormat(d, "dddd, mmmm dS");	
+    }
+    
     render() {
 
+    	var _this = this;
+    	
 		const fabStyle = {
 		    margin: 0,
 		    top: 'auto',
@@ -154,7 +151,7 @@ export default class Items extends React.Component {
 				<TextField hintText="Min. Bid" id="min_bid" type="number" defaultValue={this.state.min_bid} onChange={this.handleInputChange} /><br />
                 <TextField hintText="Buyout" id="buyout" type="number" defaultValue={this.state.buyout} onChange={this.handleInputChange} /><br />
                 <TextField disabled={true} hintText="Owner" id="owner" defaultValue={this.state.owner} onChange={this.handleInputChange} /><br />
-                <DatePicker hintText="Start Date" mode="landscape" id="start_date" defaultDate={this.state.start_date} onChange={this.handleInputChange} /><br />
+                <DatePicker hintText="Start Date" mode="landscape" id="start_date" defaultDate={this.state.start_date} onChange={this.handleStartDateInputChange} /><br />
 				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleCancel}/>
 				<FlatButton label="Submit" primary={false} onTouchTap={this.handleSubmit}/>
         	</Dialog>
@@ -184,7 +181,7 @@ export default class Items extends React.Component {
                     </TableHeader>
 
                <TableBody stripedRows={false} displayRowCheckbox={false}>
-				{this.state.items.map(function(item) {
+				{this.props.items.map(function(item) {
 					return(
 
                          <TableRow key={item.id}>
@@ -192,7 +189,7 @@ export default class Items extends React.Component {
                             <TableRowColumn>{item.min_bid}</TableRowColumn>
                             <TableRowColumn>{item.buyout}</TableRowColumn>
                             <TableRowColumn>{item.owner}</TableRowColumn>
-                            <TableRowColumn>{item.start_date}</TableRowColumn>
+                            <TableRowColumn>{_this.formatStartDate(item.start_date)}</TableRowColumn>
                             <TableRowColumn><IconButton><ActionEdit /></IconButton></TableRowColumn>
 							<TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
                         </TableRow>
