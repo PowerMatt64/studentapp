@@ -25,6 +25,8 @@ public class WsSocket extends WebSocketAdapter {
 		System.out.println("Socket Connected: " + sess);
 		this.client = new Client(id,sess);
 		WsSocketHandler.addClient(id, this.client);
+		
+		System.out.println("sc:"+WsSocketHandler.getClients());
 	}
 
 	@Override
@@ -32,15 +34,23 @@ public class WsSocket extends WebSocketAdapter {
 		System.out.println("Received TEXT message: " + message);
 		super.onWebSocketText(message);
 		try {
-			Map<String,String> var = new LinkedTreeMap<String,String>();
+			Map<String,Object> var = new LinkedTreeMap<String,Object>();
 			var = gson.fromJson(message, Map.class);
-			String accessToken = var.get("access_token");
 
 			// this is a login event
+			Object accessToken = var.get("access_token");
 			if (accessToken != null) {
-				this.client.setAccessToken(accessToken);
+				this.client.setAccessToken((String)accessToken);
 				Store.getInstance().updateClient(id);
 			}
+
+			// this is a logout event
+			Object logout = var.get("logout");
+			if (logout != null) {
+				WsSocketHandler.removeClientByAccessToken((String)logout);
+			}
+
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -50,7 +60,7 @@ public class WsSocket extends WebSocketAdapter {
 	public void onWebSocketClose(int statusCode, String reason) {
 		super.onWebSocketClose(statusCode,reason);
 		System.out.println("Socket Closed: [" + statusCode + "] " + reason);
-		WsSocketHandler.removeClient(id);
+		WsSocketHandler.removeClient(id,false);
 	}
 
 	@Override

@@ -1,5 +1,8 @@
 package com.fourpirates.students.servlets.ws;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,8 +48,8 @@ public class WsSocketHandler extends WebSocketServlet implements Runnable {
 							} else
 								System.out.println("Unknown Queue Event");
 						} else {
-							System.out.println("Removing "+s);
-							clients.remove(s);
+							System.out.println("Not Auth "+s);
+							//clients.remove(s);
 						}
 					}
 
@@ -66,12 +69,30 @@ public class WsSocketHandler extends WebSocketServlet implements Runnable {
 		factory.register(WsSocket.class);
 	}
 
+	public static Collection<Client> getClients() {
+		return clients.values();
+	}
+	
 	public static void addClient(String clientId, Client client) {
 		clients.put(clientId, client);
 	}
-	public static void removeClient(String clientId) {
-		clients.remove(clientId);
+	public static void removeClient(String clientId,boolean loggedOut) {
+		if (loggedOut)
+			clients.remove(clientId);
+		else
+			clients.get(clientId).disconnect();
 	}
+	
+	public static void removeClientByAccessToken(String accessToken) {
+		List<String> toRemove = new ArrayList<String>();
+		for (Entry<String, Client> c:clients.entrySet()) {
+			if (c.getValue().getAccessToken().equals(accessToken)) {
+				toRemove.add(c.getKey());
+			}
+		}
+		for (String s:toRemove) clients.remove(s);
+	}
+	
 	private String getStudents() {
 		return getMapAsJson("students",Store.getInstance().getStudents());
 	}
