@@ -14,7 +14,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import com.fourpirates.students.servlets.ItemServlet;
 import com.fourpirates.students.servlets.StudentServlet;
-import com.fourpirates.students.servlets.WsSocket;
+import com.fourpirates.students.servlets.ws.WsSocketHandler;
 
 public class StudentServer {
 	
@@ -47,7 +47,9 @@ public class StudentServer {
 			}
 			context.addServlet(ItemServlet.class, "/item");
 			context.addServlet(StudentServlet.class, "/student");
-			context.addServlet(WsSocket.class, "/studentws");
+			
+			ServletHolder holderEvents = new ServletHolder("ws-events", WsSocketHandler.class);
+	        context.addServlet(holderEvents, "/studentws/*");
 
 			server.setHandler(context);
 

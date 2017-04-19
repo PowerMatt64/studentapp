@@ -1,18 +1,11 @@
-package com.fourpirates.students.servlets;
+package com.fourpirates.students.servlets.ws;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.annotation.WebServlet;
 
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
-import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
@@ -22,49 +15,35 @@ import com.google.gson.GsonBuilder;
 
 @SuppressWarnings("serial")
 @WebServlet(name = "Ws WebSocket Servlet", urlPatterns = { "/ws" })
-public class WsSocket extends WebSocketServlet implements WebSocketListener,Runnable {
+public class WsSocketHandler extends WebSocketServlet implements Runnable {
 
+	private static ConcurrentHashMap<String,Client> clients = new ConcurrentHashMap<String,Client>();
 	private Gson gson = new GsonBuilder().create();
-	private CopyOnWriteArrayList<Session> clients = new CopyOnWriteArrayList<Session>();
 
-	private String lastSent;
-
-	public WsSocket() {
-
+	public WsSocketHandler() {
 		Thread t = new Thread(this);
-		t.start();		
+		t.start();	
 	}
-
-	@Override
-	public void configure(WebSocketServletFactory factory) {
-		factory.setCreator(new WebSocketCreator() {
-
-			public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-				// resp.setAcceptedSubProtocol("binary");
-				return WsSocket.this;
-			}
-		});
-	}
-
 	public void run() {
 		boolean isRunning = true;
 
-		HttpClient httpClient = new HttpClient();
-		httpClient.setFollowRedirects(false);
-
 		try {
-			httpClient.start();
 			while (isRunning) {
 				try {
 
 					String type = Store.getInstance().waitUpdate();
 
-					for (Session s : clients) {
-						if (s.isOpen()) {
+					for (Client s : clients.values()) {
+						if (s.getSession().isOpen() && s.isAuthenticated()) {
 							if (type.equalsIgnoreCase("item"))
-								s.getRemote().sendString(getItems());
-							else
-								s.getRemote().sendString(getStudents());
+								s.getSession().getRemote().sendString(getItems());
+							else if (type.equalsIgnoreCase("student"))
+								s.getSession().getRemote().sendString(getStudents());
+							else if (type.startsWith("updateClient") && s.getId().equals(type.substring(13))) {
+								s.getSession().getRemote().sendString(getStudents());
+								s.getSession().getRemote().sendString(getItems());
+							} else
+								System.out.println("Unknown Queue Event");
 						} else {
 							System.out.println("Removing "+s);
 							clients.remove(s);
@@ -76,23 +55,30 @@ public class WsSocket extends WebSocketServlet implements WebSocketListener,Runn
 					isRunning = false;
 				}
 			}
-			httpClient.stop();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void onWebSocketClose(int paramInt, String reason) {
-		//System.out.println("onWebSocketClose:"+paramInt+"("+reason+")");
+	@Override
+	public void configure(WebSocketServletFactory factory) {
+		factory.register(WsSocket.class);
 	}
 
+	public static void addClient(String clientId, Client client) {
+		clients.put(clientId, client);
+	}
+	public static void removeClient(String clientId) {
+		clients.remove(clientId);
+	}
 	private String getStudents() {
 		return getMapAsJson("students",Store.getInstance().getStudents());
 	}
 	private String getItems() {
 		return getMapAsJson("items",Store.getInstance().getItems());
 	}
-	
+
 	private String getMapAsJson(String typeName, Map<String, Map<String, Object>> emap) {
 		StringBuilder map = new StringBuilder();
 		map.append("{\"a\":\""+typeName+"\",\"items\":[");
@@ -105,27 +91,5 @@ public class WsSocket extends WebSocketServlet implements WebSocketListener,Runn
 		map.append("]}");
 		return map.toString();
 	}
-	
-	public void onWebSocketConnect(Session session) {
-		try {
-			session.getRemote().sendString(getStudents());
-			session.getRemote().sendString(getItems());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		clients.add(session);
-	}
 
-	public void onWebSocketError(Throwable err) {
-		//err.printStackTrace();
-		System.out.println("onWebSocketError:"+err);
-	}
-
-	public void onWebSocketBinary(byte[] arg0, int arg1, int arg2) {
-		System.out.println("onWebSocketBinary");
-	}
-
-	public void onWebSocketText(String text) {
-		System.out.println("onWebSocketText:"+text);
-	}
 }

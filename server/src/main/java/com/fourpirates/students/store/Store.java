@@ -26,7 +26,7 @@ public class Store {
 	public static Store getInstance(){return INSTANCE;}
 	
 	private Store() {
-		MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://192.168.99.152:27017"));
+		MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://127.0.0.1:27017"));
 		MongoDatabase database = mongoClient.getDatabase("cactus");
 
 		students = database.getCollection("students");
@@ -61,6 +61,9 @@ public class Store {
 		QUEUE.put("item");
 		return id;
 	}
+	public void updateClient(String clientId) throws Exception {
+		QUEUE.put("updateClient:"+clientId);
+	}	
 	
 	public String waitUpdate() throws InterruptedException {
 		return QUEUE.take();
