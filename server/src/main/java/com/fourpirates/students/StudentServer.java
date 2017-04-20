@@ -1,24 +1,7 @@
 package com.fourpirates.students;
 
-import java.util.EnumSet;
-
-import javax.servlet.DispatcherType;
-
-import org.eclipse.jetty.server.Server;
-//import org.eclipse.jetty.server.session.HashSessionIdManager;
-import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-
-import com.fourpirates.students.servlets.AuthServlet;
-import com.fourpirates.students.servlets.ItemServlet;
-import com.fourpirates.students.servlets.StudentServlet;
-import com.fourpirates.students.servlets.ws.WsSocketHandler;
-
 public class StudentServer {
-	
+	/*
 	public static void main(String[] args) {
 		new StudentServer();
 	}
@@ -62,7 +45,7 @@ public class StudentServer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
+*/
 
 }

@@ -1,5 +1,7 @@
 package com.fourpirates.students.store;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,6 +49,8 @@ public class Store {
 	public String addStudent(Map<String,String> pstudent) throws Exception {
 		Document student = new Document();
 		student.putAll(pstudent);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		student.put("last_login", sdf.format(new Date()));
 		students.insertOne(student);
 		String id = student.getObjectId("_id").toHexString();
 		QUEUE.put("student");
@@ -72,7 +76,10 @@ public class Store {
 	public String setStudent(String id,Map<String,String> student) throws Exception {
 		Document updatedStudent = new Document();
 		updatedStudent.putAll(student);
-		students.findOneAndReplace(new Document().append("_id", new ObjectId(id)),updatedStudent);
+		return setStudent(id,updatedStudent);
+	}
+	public String setStudent(String id,Document student) throws Exception {
+		students.findOneAndReplace(new Document().append("_id", new ObjectId(id)),student);
 		QUEUE.put("student");
 		return id;
 	}
@@ -104,6 +111,13 @@ public class Store {
 		}
 		
 		return returnMap;
+	}
+	
+	public Document getStudentByEmail(String email) {
+		for (Document s:students.find(new Document().append("email", email))) {
+			return s;
+		}
+		return null;
 	}
 	
 }
