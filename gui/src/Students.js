@@ -26,6 +26,7 @@ export default class Students extends React.Component {
             last_name:'',
             email:'',
             grade:'',
+            credits:'',
             id:''
         }
     	this.handleCancel = this.handleCancel.bind(this);
@@ -34,11 +35,16 @@ export default class Students extends React.Component {
     	this.handleSubmit = this.handleSubmit.bind(this);
     	this.handleInputChange = this.handleInputChange.bind(this);
         this.handleCellClick = this.handleCellClick.bind(this);
+        this.formatCredits = this.formatCredits.bind(this);
     }
 
     // handle realtime updates / component mount
     componentDidMount() {
         var _this = this;
+    }
+    formatCredits(c) {
+    	var humanFormat = require('human-format');
+    	return humanFormat(c);
     }
 
     // handle new student
@@ -48,6 +54,7 @@ export default class Students extends React.Component {
 		this.setState({last_name:''});
 		this.setState({email:''});
 		this.setState({grade:''});
+		this.setState({credits:''});
 		this.setState({id:'-1'});
  		this.setState({addDialogOpen: true});
 	}
@@ -64,7 +71,8 @@ export default class Students extends React.Component {
 				first_name:this.state.first_name,
 				last_name:this.state.last_name,
                 email:this.state.email,
-                grade:this.state.grade
+                grade:this.state.grade,
+                credits:this.state.credits
 				}).then(function(result){
         });
 	    this.setState({addDialogOpen: false});
@@ -80,22 +88,25 @@ export default class Students extends React.Component {
 		if (e.target.id==="last_name") this.setState({last_name:value});
         if (e.target.id==="email") this.setState({email:value});
         if (e.target.id==="grade") this.setState({grade:value});
+        if (e.target.id==="credits") this.setState({credits:value});
     }
+	
 
     // handle row interaction
     handleCellClick(rowNum,columnNum) {
         var _this = this;
-        if (columnNum===6) {
+        if (columnNum===7) {
         	this.setState({id:this.props.students[rowNum].id});
         	this.setState({first_name:this.props.students[rowNum].first_name});
         	this.setState({confirmDialogOpen:true});
 
-        } else if (columnNum===5) {
+        } else if (columnNum===6) {
         	this.setState({title:'Edit Student'});
         	this.setState({first_name:this.props.students[rowNum].first_name});
         	this.setState({last_name:this.props.students[rowNum].last_name});
         	this.setState({email:this.props.students[rowNum].email});
         	this.setState({grade:this.props.students[rowNum].grade});
+        	this.setState({credits:this.props.students[rowNum].credits});
         	this.setState({id:this.props.students[rowNum].id});
         	this.setState({addDialogOpen: true});
         }
@@ -127,11 +138,12 @@ export default class Students extends React.Component {
 				<TextField hintText="Last Name" id="last_name" defaultValue={this.state.last_name} onChange={this.handleInputChange} /><br />
                 <TextField hintText="Email" id="email" defaultValue={this.state.email} onChange={this.handleInputChange} /><br />
                 <TextField hintText="Grade" id="grade" defaultValue={this.state.grade} onChange={this.handleInputChange} /><br />
+                <TextField hintText="Cactus Credits" id="credits" defaultValue={this.state.credits} onChange={this.handleInputChange} /><br />
 				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleCancel}/>
 				<FlatButton label="Submit" primary={false} onTouchTap={this.handleSubmit}/>
         	</Dialog>
 				<Dialog
-					title={'Are you sure you want to delete '+this.state.first_name+'?'}
+					title={'Are you sure you want to delete '+this.state.first_name+' from the list?'}
 					modal={true}
 
 					open={this.state.confirmDialogOpen}
@@ -149,6 +161,7 @@ export default class Students extends React.Component {
                         <TableHeaderColumn>Last Name</TableHeaderColumn>
                         <TableHeaderColumn>Email</TableHeaderColumn>
                         <TableHeaderColumn>Grade</TableHeaderColumn>
+                        <TableHeaderColumn>Credits</TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
                       </TableRow>
@@ -163,6 +176,7 @@ export default class Students extends React.Component {
                             <TableRowColumn>{student.last_name}</TableRowColumn>
                             <TableRowColumn>{student.email}</TableRowColumn>
                             <TableRowColumn>{student.grade}</TableRowColumn>
+                            <TableRowColumn>{_this.formatCredits(student.credits)}</TableRowColumn>
                             <TableRowColumn><IconButton><ActionEdit /></IconButton></TableRowColumn>
 							<TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
                         </TableRow>
