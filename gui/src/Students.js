@@ -12,7 +12,7 @@ import IconButton from 'material-ui/IconButton';
 
 
 //const host = "";
-const host = "http://localhost:8080";
+const host = "http://localhost:8080/StudentApp";
 
 export default class Students extends React.Component {
 
@@ -43,8 +43,9 @@ export default class Students extends React.Component {
         var _this = this;
     }
     formatCredits(c) {
+    	if (!c) return 0;
     	var humanFormat = require('human-format');
-    	return humanFormat(c);
+    	return humanFormat(parseInt(c));
     }
 
     // handle new student
@@ -95,12 +96,12 @@ export default class Students extends React.Component {
     // handle row interaction
     handleCellClick(rowNum,columnNum) {
         var _this = this;
-        if (columnNum===7) {
+        if (columnNum===8) {
         	this.setState({id:this.props.students[rowNum].id});
         	this.setState({first_name:this.props.students[rowNum].first_name});
         	this.setState({confirmDialogOpen:true});
 
-        } else if (columnNum===6) {
+        } else if (columnNum===7) {
         	this.setState({title:'Edit Student'});
         	this.setState({first_name:this.props.students[rowNum].first_name});
         	this.setState({last_name:this.props.students[rowNum].last_name});
@@ -162,6 +163,7 @@ export default class Students extends React.Component {
                         <TableHeaderColumn>Email</TableHeaderColumn>
                         <TableHeaderColumn>Grade</TableHeaderColumn>
                         <TableHeaderColumn>Credits</TableHeaderColumn>
+                        <TableHeaderColumn>Last Login</TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
                       </TableRow>
@@ -177,6 +179,7 @@ export default class Students extends React.Component {
                             <TableRowColumn>{student.email}</TableRowColumn>
                             <TableRowColumn>{student.grade}</TableRowColumn>
                             <TableRowColumn>{_this.formatCredits(student.credits)}</TableRowColumn>
+                            <TableRowColumn>{student.last_login}</TableRowColumn>
                             <TableRowColumn><IconButton><ActionEdit /></IconButton></TableRowColumn>
 							<TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
                         </TableRow>
