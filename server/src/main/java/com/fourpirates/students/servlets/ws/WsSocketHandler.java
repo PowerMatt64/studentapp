@@ -36,10 +36,12 @@ public class WsSocketHandler implements Runnable {
 						if (s.getSession().isOpen()) {
 							if (type.equalsIgnoreCase("item"))
 								s.getSession().getBasicRemote().sendText(getItems());
-							else if (type.equalsIgnoreCase("student"))
+							else if (type.equalsIgnoreCase("student")){
 								s.getSession().getBasicRemote().sendText(getStudents());
-							else if (type.startsWith("updateClient") && s.getId().equals(type.substring(13))) {
+								s.getSession().getBasicRemote().sendText(getLeaderboard());
+							}else if (type.startsWith("updateClient") && s.getId().equals(type.substring(13))) {
 								s.getSession().getBasicRemote().sendText(getStudents());
+								s.getSession().getBasicRemote().sendText(getLeaderboard());
 								s.getSession().getBasicRemote().sendText(getItems());
 							} else
 								System.out.println("Unknown Queue Event");
@@ -78,6 +80,9 @@ public class WsSocketHandler implements Runnable {
 
 	private String getStudents() {
 		return getMapAsJson("students",Store.getInstance().getStudents());
+	}
+	private String getLeaderboard() {
+		return getMapAsJson("leaderboard",Store.getInstance().getLeaderboard());
 	}
 	private String getItems() {
 		return getMapAsJson("items",Store.getInstance().getItems());

@@ -95,6 +95,9 @@ public class Store {
 	public Map<String,Map<String,Object>> getStudents() {
 		return getCollection(students);
 	}
+	public Map<String,Map<String,Object>> getLeaderboard() {
+		return getCollection(students);
+	}
 	public Map<String,Map<String,Object>> getItems() {
 		return getCollection(items);
 	}
