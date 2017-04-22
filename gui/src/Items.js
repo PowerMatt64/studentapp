@@ -14,7 +14,7 @@ import DatePicker from 'material-ui/DatePicker';
 
 
 //const host = "";
-const host = "http://localhost:8080/StudentApp";
+const host = "/StudentApp";
 
 export default class Items extends React.Component {
 

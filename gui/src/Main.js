@@ -1,5 +1,6 @@
 import React from 'react';
 import Students from './Students';
+import Leaderboard from './Leaderboard';
 import Items from './Items';
 import AppBar from 'material-ui/AppBar';
 import IconButton from 'material-ui/IconButton';
@@ -15,8 +16,9 @@ import FontIcon from 'material-ui/FontIcon';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 
+
 //const host = "";
-const host = "http://localhost:8080/StudentApp";
+const host = "/StudentApp";
 
 
 export default class Main extends React.Component {
@@ -25,6 +27,7 @@ export default class Main extends React.Component {
 		super(props);
         this.state = {
         	students: [],
+        	leaderboard: [],
         	items: [],
 			open: false,
 			displayName:null,
@@ -61,16 +64,27 @@ export default class Main extends React.Component {
 
 	routeHandler(event, menu, obj) {
 		ReactDOM.findDOMNode(this.refs.students).style.display='none';
+		ReactDOM.findDOMNode(this.refs.leaderboard).style.display='none';
 		ReactDOM.findDOMNode(this.refs.items).style.display='none';
 		if (menu==='studentsMenu') ReactDOM.findDOMNode(this.refs.students).style.display='block';
+		if (menu==='leaderboardMenu') ReactDOM.findDOMNode(this.refs.leaderboard).style.display='block';
 		if (menu==='itemsMenu') ReactDOM.findDOMNode(this.refs.items).style.display='block';
 		this.setState({open: false});
 	}
 
 	getConnection() {
 		var _this = this;
+		var loc = window.location, new_uri;
 		
-        _this.state.connection = new WebSocket('ws://localhost:8080/StudentApp/studentws')
+		if (loc.protocol === "https:") {
+		    new_uri = "wss:";
+		} else {
+		    new_uri = "ws:";
+		}
+		new_uri += "//" + loc.host;
+		new_uri += loc.pathname + "studentws";
+		
+        _this.state.connection = new WebSocket(new_uri)
         _this.state.connection.onopen = evt => {
     		this.state.connection.send(
     				"{\"msg\":\"hello\"}");
@@ -80,6 +94,8 @@ export default class Main extends React.Component {
 			var msg = JSON.parse(evt.data);
 			if (msg.a==='students') {
 				_this.setState({students: msg.items});
+			} if (msg.a==='leaderboard') {
+				_this.setState({leaderboard: msg.items});
 			} if (msg.a==='items') {
 				_this.setState({items: msg.items});
 			} else {
@@ -117,11 +133,13 @@ export default class Main extends React.Component {
 					<AppBar title="Menu" showMenuIconButton={false}/>
 					<Menu onChange={this.routeHandler.bind(this)}>
 						<MenuItem value="studentsMenu" leftIcon={<FontIcon className="material-icons" >supervisor_account</FontIcon>}>Students</MenuItem>
+						<MenuItem value="leaderboardMenu" leftIcon={<FontIcon className="material-icons" >format_list_numbered</FontIcon>}>Leaderboard</MenuItem>
 						<MenuItem value="itemsMenu" leftIcon={<FontIcon className="material-icons" >whatshot</FontIcon>}>Auction Items</MenuItem>
                     </Menu>
                 </Drawer>
 
 				<div ref="students" style={contentStyle}><Students students={this.state.students}/></div>
+				<div ref="leaderboard" style={contentStyle}><Leaderboard leaderboard={this.state.leaderboard}/></div>
 				<div ref="items" style={contentStyle}><Items items={this.state.items}/></div>
 
             </div>
