@@ -1,6 +1,7 @@
 package com.fourpirates.students.servlets.ws;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,9 +13,9 @@ import com.google.gson.GsonBuilder;
 public class WsSocketHandler implements Runnable {
 
 	private static final WsSocketHandler INSTANCE = new WsSocketHandler();
-	
+
 	public static WsSocketHandler getInstance(){return INSTANCE;}
-	
+
 	private ConcurrentHashMap<String,Client> clients = new ConcurrentHashMap<String,Client>();
 	private Gson gson = new GsonBuilder().create();
 
@@ -30,27 +31,31 @@ public class WsSocketHandler implements Runnable {
 				try {
 
 					String type = Store.getInstance().waitUpdate();
+					System.out.println("update recvd");
+					try {
+						for (Client s : clients.values()) {
 
-					for (Client s : clients.values()) {
-
-						if (s.getSession().isOpen()) {
-							if (type.equalsIgnoreCase("item"))
-								s.getSession().getBasicRemote().sendText(getItems());
-							else if (type.equalsIgnoreCase("student")){
-								s.getSession().getBasicRemote().sendText(getStudents());
-								s.getSession().getBasicRemote().sendText(getLeaderboard());
-							}else if (type.startsWith("updateClient") && s.getId().equals(type.substring(13))) {
-								s.getSession().getBasicRemote().sendText(getStudents());
-								s.getSession().getBasicRemote().sendText(getLeaderboard());
-								s.getSession().getBasicRemote().sendText(getItems());
-							} else
-								System.out.println("Unknown Queue Event");
-						} else {
-							if ((System.currentTimeMillis() - s.getLastActivity())>2*60*1000 ) {// kill unauth session>2 mins old
-								clients.remove(s.getId());
-								System.out.println("Killing Session For Access "+s.getId());
+							if (s.getSession().isOpen()) {
+								if (type.equalsIgnoreCase("item"))
+									s.getSession().getBasicRemote().sendText(getItems());
+								else if (type.equalsIgnoreCase("student")){
+									s.getSession().getBasicRemote().sendText(getStudents());
+									s.getSession().getBasicRemote().sendText(getLeaderboard());
+								}else if (type.startsWith("updateClient") && s.getId().equals(type.substring(13))) {
+									s.getSession().getBasicRemote().sendText(getStudents());
+									s.getSession().getBasicRemote().sendText(getLeaderboard());
+									s.getSession().getBasicRemote().sendText(getItems());
+								} else
+									System.out.println("Unknown Queue Event");
+							} else {
+								if ((System.currentTimeMillis() - s.getLastActivity())>2*60*1000 ) {// kill unauth session>2 mins old
+									clients.remove(s.getId());
+									System.out.println("Killing Session For Access "+s.getId());
+								}
 							}
 						}
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 
 					Thread.sleep(2000);
@@ -78,23 +83,23 @@ public class WsSocketHandler implements Runnable {
 			clients.get(clientId).disconnect();
 	}
 
-	private String getStudents() {
-		return getMapAsJson("students",Store.getInstance().getStudents());
+	private String getStudents() throws Exception {
+		return getListAsJson("students",Store.getInstance().getStudents());
 	}
-	private String getLeaderboard() {
-		return getMapAsJson("leaderboard",Store.getInstance().getLeaderboard());
+	private String getLeaderboard() throws Exception{
+		return getListAsJson("leaderboard",Store.getInstance().getLeaderboard());
 	}
-	private String getItems() {
-		return getMapAsJson("items",Store.getInstance().getItems());
+	private String getItems() throws Exception {
+		return getListAsJson("items",Store.getInstance().getItems());
 	}
 
-	private String getMapAsJson(String typeName, Map<String, Map<String, Object>> emap) {
+	private String getListAsJson(String typeName, List<Map<String, Object>> emap) {
 		StringBuilder map = new StringBuilder();
 		map.append("{\"a\":\""+typeName+"\",\"items\":[");
 		int c=0;
-		for (Entry<String, Map<String, Object>> se:emap.entrySet()) {
+		for (Map<String, Object> se:emap) {
 			if (c>0) map.append(',');
-			map.append(gson.toJson(se.getValue()));
+			map.append(gson.toJson(se));
 			c++;
 		}
 		map.append("]}");

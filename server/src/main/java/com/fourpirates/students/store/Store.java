@@ -1,8 +1,10 @@
 package com.fourpirates.students.store;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -13,8 +15,10 @@ import org.bson.types.ObjectId;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Sorts;
 
 public class Store {
 
@@ -92,25 +96,39 @@ public class Store {
 		return id;
 	}
 	
-	public Map<String,Map<String,Object>> getStudents() {
-		return getCollection(students);
+	public List<Map<String,Object>> getStudents() throws Exception{
+		return getCollection(students,"email",true);
 	}
-	public Map<String,Map<String,Object>> getLeaderboard() {
-		return getCollection(students);
+	public List<Map<String,Object>> getLeaderboard() throws Exception{
+		return getCollection(students,"credits",false);
 	}
-	public Map<String,Map<String,Object>> getItems() {
+	public List<Map<String,Object>> getItems() throws Exception{
 		return getCollection(items);
 	}
 	
-	private Map<String,Map<String,Object>> getCollection(MongoCollection<Document> collection) {
-		Map<String,Map<String,Object>> returnMap = new HashMap<String,Map<String,Object>>();
-		for(Document d:collection.find()){
+	private List<Map<String,Object>> getCollection(MongoCollection<Document> collection) throws Exception{
+		return getCollection(collection,null,null);
+	}
+	private List<Map<String,Object>> getCollection(MongoCollection<Document> collection,String sortField, Boolean isAscending) throws Exception {
+		List<Map<String,Object>> returnMap = new ArrayList<Map<String,Object>>();
+		FindIterable<Document> findResults = null;
+		System.out.println("getting collection");
+		if (sortField==null) {
+			findResults = collection.find();
+		} else {
+			if (isAscending)
+				findResults = collection.find().sort(Sorts.ascending(sortField));
+			else
+				findResults = collection.find().sort(Sorts.descending(sortField));
+		}
+		for(Document d:findResults){
+			System.out.println("got:"+d);
 			Map<String,Object> r=new HashMap<String,Object>();
 			for (Entry<String, Object> r2:d.entrySet()) {
 				r.put(r2.getKey(),r2.getValue());
 			}
 			r.put("id", d.getObjectId("_id").toHexString());
-			returnMap.put(d.getObjectId("_id").toHexString(), r);
+			returnMap.add(r);
 		}
 		
 		return returnMap;
