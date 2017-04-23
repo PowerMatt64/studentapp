@@ -44,7 +44,7 @@ export default class Leaderboard extends React.Component {
                 <Table onCellClick={this.handleCellClick}>
                     <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
                         <TableRow>
-                        <TableHeaderColumn>Position</TableHeaderColumn>
+                        
                         <TableHeaderColumn>First Name</TableHeaderColumn>
                         <TableHeaderColumn>Last Name</TableHeaderColumn>
                         <TableHeaderColumn>Email</TableHeaderColumn>
@@ -58,7 +58,7 @@ export default class Leaderboard extends React.Component {
 					return(
 
                          <TableRow key={leaderboardItem.id}>
-                         	<TableRowColumn>{leaderboardItem.place}</TableRowColumn>
+                         	
                             <TableRowColumn>{leaderboardItem.first_name}</TableRowColumn>
                             <TableRowColumn>{leaderboardItem.last_name}</TableRowColumn>
                             <TableRowColumn>{leaderboardItem.email}</TableRowColumn>
