@@ -55,6 +55,7 @@ public class Store {
 		student.putAll(pstudent);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		student.put("last_login", sdf.format(new Date()));
+		student.put("credits", new Integer(0));
 		students.insertOne(student);
 		String id = student.getObjectId("_id").toHexString();
 		QUEUE.put("student");
@@ -83,6 +84,10 @@ public class Store {
 		return setStudent(id,updatedStudent);
 	}
 	public String setStudent(String id,Document student) throws Exception {
+		// earlier versions had credits as string - 
+		Object credits = student.get("credits");
+		if (credits instanceof String)
+			student.put("credits", new Integer((String)credits));
 		students.findOneAndReplace(new Document().append("_id", new ObjectId(id)),student);
 		QUEUE.put("student");
 		return id;
