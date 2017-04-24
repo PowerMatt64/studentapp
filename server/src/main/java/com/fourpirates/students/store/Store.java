@@ -13,6 +13,7 @@ import java.util.concurrent.BlockingQueue;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
@@ -101,30 +102,36 @@ public class Store {
 		return id;
 	}
 	
-	public List<Map<String,Object>> getStudents() throws Exception{
-		return getCollection(students,"email",true);
+	public List<Map<String,Object>> getStudents(String filterString) throws Exception{
+		BasicDBObject filter = new BasicDBObject();
+		return getCollection(students,filter,"email",true);
 	}
-	public List<Map<String,Object>> getLeaderboard() throws Exception{
-		return getCollection(students,"credits",false);
+	public List<Map<String,Object>> getLeaderboard(String filterString) throws Exception{
+		BasicDBObject filter = new BasicDBObject();
+		return getCollection(students,filter, "credits",false);
 	}
-	public List<Map<String,Object>> getItems() throws Exception{
-		return getCollection(items);
+	public List<Map<String,Object>> getItems(String filterString) throws Exception{
+		BasicDBObject filter = new BasicDBObject();
+		if (filterString!=null) {
+			filter.put("name", new BasicDBObject("$regex", ".*"+filterString+".*").append("$options", "i"));
+		}
+		return getCollection(items,filter);
 	}
 	
-	private List<Map<String,Object>> getCollection(MongoCollection<Document> collection) throws Exception{
-		return getCollection(collection,null,null);
+	private List<Map<String,Object>> getCollection(MongoCollection<Document> collection, BasicDBObject filter) throws Exception{
+		return getCollection(collection,filter, null,null);
 	}
-	private List<Map<String,Object>> getCollection(MongoCollection<Document> collection,String sortField, Boolean isAscending) throws Exception {
+	private List<Map<String,Object>> getCollection(MongoCollection<Document> collection,BasicDBObject filter, String sortField, Boolean isAscending) throws Exception {
 		List<Map<String,Object>> returnMap = new ArrayList<Map<String,Object>>();
 		FindIterable<Document> findResults = null;
 		System.out.println("getting collection");
 		if (sortField==null) {
-			findResults = collection.find();
+			findResults = collection.find(filter);
 		} else {
 			if (isAscending)
-				findResults = collection.find().sort(Sorts.ascending(sortField));
+				findResults = collection.find(filter).sort(Sorts.ascending(sortField));
 			else
-				findResults = collection.find().sort(Sorts.descending(sortField));
+				findResults = collection.find(filter).sort(Sorts.descending(sortField));
 		}
 		for(Document d:findResults){
 			System.out.println("got:"+d);

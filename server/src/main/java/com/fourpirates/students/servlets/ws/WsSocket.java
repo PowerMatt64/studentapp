@@ -74,13 +74,14 @@ public class WsSocket {
 				}
 
 			}
-/*
-			// this is a logout event
-			Object logout = var.get("logout");
-			if (logout != null) {
-				WsSocketHandler.removeClientByAccessToken((String)logout);
+
+			// this is a filter
+			Object filter = var.get("filter");
+			if (filter != null) {
+				client.setFilter((String)var.get("for"),(String)filter);
+				Store.getInstance().updateClient(id);
 			}
-*/
+
 
 		} catch (Exception e) {
 			e.printStackTrace();

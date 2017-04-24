@@ -3,7 +3,6 @@ package com.fourpirates.students.servlets.ws;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fourpirates.students.store.Store;
@@ -33,18 +32,23 @@ public class WsSocketHandler implements Runnable {
 					String type = Store.getInstance().waitUpdate();
 					System.out.println("update recvd");
 					try {
+						String items = getItems(null);
+						String students = getStudents(null);
+						String leaderBoard = getLeaderboard(null);
 						for (Client s : clients.values()) {
-
 							if (s.getSession().isOpen()) {
 								if (type.equalsIgnoreCase("item"))
-									s.getSession().getBasicRemote().sendText(getItems());
+									s.getSession().getBasicRemote().sendText(items);
 								else if (type.equalsIgnoreCase("student")){
-									s.getSession().getBasicRemote().sendText(getStudents());
-									s.getSession().getBasicRemote().sendText(getLeaderboard());
+									s.getSession().getBasicRemote().sendText(students);
+									s.getSession().getBasicRemote().sendText(leaderBoard);
 								}else if (type.startsWith("updateClient") && s.getId().equals(type.substring(13))) {
-									s.getSession().getBasicRemote().sendText(getStudents());
-									s.getSession().getBasicRemote().sendText(getLeaderboard());
-									s.getSession().getBasicRemote().sendText(getItems());
+									if (s.getFilterFor("items")!=null) {
+										items = getItems(s.getFilterFor("items"));
+									}
+									s.getSession().getBasicRemote().sendText(students);
+									s.getSession().getBasicRemote().sendText(leaderBoard);
+									s.getSession().getBasicRemote().sendText(items);
 								} else
 									System.out.println("Unknown Queue Event");
 							} else {
@@ -83,14 +87,17 @@ public class WsSocketHandler implements Runnable {
 			clients.get(clientId).disconnect();
 	}
 
-	private String getStudents() throws Exception {
-		return getListAsJson("students",Store.getInstance().getStudents());
+	private String getStudents(String filter) throws Exception {
+		return getListAsJson("students",Store.getInstance().getStudents(filter));
 	}
-	private String getLeaderboard() throws Exception{
-		return getListAsJson("leaderboard",Store.getInstance().getLeaderboard());
+	private String getLeaderboard(String filter) throws Exception{
+		return getListAsJson("leaderboard",Store.getInstance().getLeaderboard(filter));
 	}
 	private String getItems() throws Exception {
-		return getListAsJson("items",Store.getInstance().getItems());
+		return getItems(null);
+	}
+	private String getItems(String filter) throws Exception {
+		return getListAsJson("items",Store.getInstance().getItems(filter));
 	}
 
 	private String getListAsJson(String typeName, List<Map<String, Object>> emap) {
