@@ -6,6 +6,7 @@ import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import axios from 'axios';
 import ActionDelete from 'material-ui/svg-icons/action/delete';
+import ActionCredit from 'material-ui/svg-icons/action/account-balance-wallet';
 import ActionEdit from 'material-ui/svg-icons/image/edit';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 import IconButton from 'material-ui/IconButton';
@@ -21,18 +22,22 @@ export default class Students extends React.Component {
         this.state = {
             addDialogOpen:false,
             confirmDialogOpen:false,
+            addCreditDialogOpen:false,
             title:'Add Student',
             first_name:'',
             last_name:'',
             email:'',
             grade:'',
             credits:'',
+            creditsadd:5,
             id:''
         }
     	this.handleCancel = this.handleCancel.bind(this);
+        this.handleCreditCancel = this.handleCreditCancel.bind(this);
         this.handleConfirmCancel = this.handleConfirmCancel.bind(this);
         this.handleConfirmSubmit = this.handleConfirmSubmit.bind(this);
     	this.handleSubmit = this.handleSubmit.bind(this);
+    	this.handleCreditSubmit = this.handleCreditSubmit.bind(this);
     	this.handleInputChange = this.handleInputChange.bind(this);
         this.handleCellClick = this.handleCellClick.bind(this);
         this.formatCredits = this.formatCredits.bind(this);
@@ -62,6 +67,9 @@ export default class Students extends React.Component {
 	handleCancel() {
 	    this.setState({addDialogOpen: false});
 	}
+	handleCreditCancel() {
+	    this.setState({addCreditDialogOpen: false});
+	}
 	handleConfirmCancel() {
 	    this.setState({confirmDialogOpen: false});
 	}
@@ -77,6 +85,19 @@ export default class Students extends React.Component {
 				}).then(function(result){
         });
 	    this.setState({addDialogOpen: false});
+    }
+	handleCreditSubmit(e) {
+        var _this = this;
+		axios.post(host+"/student",{
+			id:this.state.id,
+			first_name:this.state.first_name,
+			last_name:this.state.last_name,
+            email:this.state.email,
+            grade:this.state.grade,
+            credits:parseInt(this.state.credits) + parseInt(this.state.creditsadd)
+			}).then(function(result){
+        });
+	    this.setState({addCreditDialogOpen: false});
     }
 	handleConfirmSubmit(){
 		var deleteURL = host+"/student?id="+this.state.id;
@@ -110,6 +131,15 @@ export default class Students extends React.Component {
         	this.setState({credits:this.props.students[rowNum].credits});
         	this.setState({id:this.props.students[rowNum].id});
         	this.setState({addDialogOpen: true});
+        } else if (columnNum===9) {
+        	this.setState({title:'Add Credits'});
+        	this.setState({first_name:this.props.students[rowNum].first_name});
+        	this.setState({last_name:this.props.students[rowNum].last_name});
+        	this.setState({email:this.props.students[rowNum].email});
+        	this.setState({grade:this.props.students[rowNum].grade});
+        	this.setState({credits:this.props.students[rowNum].credits});
+        	this.setState({id:this.props.students[rowNum].id});
+        	this.setState({addCreditDialogOpen: true});
         }
     }
     
@@ -144,6 +174,17 @@ export default class Students extends React.Component {
 				<FlatButton label="Submit" primary={false} onTouchTap={this.handleSubmit}/>
         	</Dialog>
 				<Dialog
+		          title={'Add Credits'}
+		          modal={true}
+
+		          open={this.state.addCreditDialogOpen}
+		        >
+				
+              <TextField hintText="Cactus Credits" id="credits" type="number" value={this.state.creditsadd} onChange={this.handleInputChange} /><br />
+				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleCreditCancel}/>
+				<FlatButton label="Submit" primary={false} onTouchTap={this.handleCreditSubmit}/>
+      	</Dialog>
+				<Dialog
 					title={'Are you sure you want to delete '+this.state.first_name+' from the list?'}
 					modal={true}
 
@@ -166,6 +207,7 @@ export default class Students extends React.Component {
                         <TableHeaderColumn>Last Login</TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
                         <TableHeaderColumn></TableHeaderColumn>
+                        <TableHeaderColumn></TableHeaderColumn>
                       </TableRow>
                     </TableHeader>
 
@@ -182,6 +224,7 @@ export default class Students extends React.Component {
                             <TableRowColumn>{student.last_login}</TableRowColumn>
                             <TableRowColumn><IconButton><ActionEdit /></IconButton></TableRowColumn>
 							<TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
+							<TableRowColumn><IconButton><ActionCredit /></IconButton></TableRowColumn>
                         </TableRow>
 
 
