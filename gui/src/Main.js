@@ -46,7 +46,6 @@ export default class Main extends React.Component {
         var _this = this;
 		
 			axios.get(host+"/user.jsp").then(function(result){
-				console.log(result.data);
 					_this.setState({displayName:result.data.n});
 					_this.setState({photoURL:result.data.i});
 					_this.setState({email:result.data.e});
@@ -90,16 +89,15 @@ export default class Main extends React.Component {
     				"{\"msg\":\"hello\"}");
 		}
 		_this.state.connection.onmessage = evt => {
-			console.log("R/T Received",evt);
 			var msg = JSON.parse(evt.data);
 			if (msg.a==='students') {
 				_this.setState({students: msg.items});
-			} if (msg.a==='leaderboard') {
+			} else if (msg.a==='leaderboard') {
 				_this.setState({leaderboard: msg.items});
-			} if (msg.a==='items') {
+			} else if (msg.a==='items') {
 				_this.setState({items: msg.items});
 			} else {
-				console.log('r/t update');
+				console.log('unknown r/t update : ',evt);
 			}
 		}
 	}
@@ -138,9 +136,9 @@ export default class Main extends React.Component {
                     </Menu>
                 </Drawer>
 
-				<div ref="students" style={contentStyle}><Students students={this.state.students}/></div>
-				<div ref="leaderboard" style={contentStyle}><Leaderboard leaderboard={this.state.leaderboard}/></div>
-				<div ref="items" style={contentStyle}><Items items={this.state.items}/></div>
+				<div ref="students" style={contentStyle}><Students connection={this.state.connection} students={this.state.students}/></div>
+				<div ref="leaderboard" style={contentStyle}><Leaderboard connection={this.state.connection} leaderboard={this.state.leaderboard}/></div>
+				<div ref="items" style={contentStyle}><Items connection={this.state.connection} items={this.state.items}/></div>
 
             </div>
         )

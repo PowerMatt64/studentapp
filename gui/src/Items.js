@@ -10,8 +10,8 @@ import ActionEdit from 'material-ui/svg-icons/image/edit';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 import IconButton from 'material-ui/IconButton';
 import DatePicker from 'material-ui/DatePicker';
-
-
+import {Card, CardActions, CardHeader} from 'material-ui/Card';
+import FontIcon from 'material-ui/FontIcon';
 
 //const host = "";
 const host = "/StudentApp";
@@ -29,6 +29,7 @@ export default class Items extends React.Component {
             buyout:'',
             owner:'',
             id:'',
+			filterValue:'',
             start_date:new Date()
         }
     	this.handleCancel = this.handleCancel.bind(this);
@@ -39,7 +40,14 @@ export default class Items extends React.Component {
     	this.handleStartDateInputChange = this.handleStartDateInputChange.bind(this);
         this.handleCellClick = this.handleCellClick.bind(this);
         this.formatStartDate = this.formatStartDate.bind(this);
+    	this.filter = this.filter.bind(this);
     }
+
+	filter(e) {
+		let value = e.target.value;
+		this.setState({filterValue:value});
+		this.props.connection.send('{"for":"items","filter":"'+value+'"}');
+	}
 
     // handle realtime updates / component mount
     componentDidMount() {
@@ -139,8 +147,7 @@ export default class Items extends React.Component {
 
         return (
             <div>
-
-
+           
             <Dialog
 		          title={this.state.title}
 		          modal={true}
@@ -166,42 +173,42 @@ export default class Items extends React.Component {
 				</Dialog>
 
                 <FloatingActionButton style={fabStyle} onTouchTap={() => { this.onAddHandler(); }}><ContentAdd /></FloatingActionButton>
-
-                <Table onCellClick={this.handleCellClick}>
-                    <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
-                        <TableRow>
-                        <TableHeaderColumn>Name</TableHeaderColumn>
-                        <TableHeaderColumn>Min. Bid</TableHeaderColumn>
-                        <TableHeaderColumn>Buyout</TableHeaderColumn>
-                        <TableHeaderColumn>Owner</TableHeaderColumn>
-                        <TableHeaderColumn>Start Date</TableHeaderColumn>
-                        <TableHeaderColumn></TableHeaderColumn>
-                        <TableHeaderColumn></TableHeaderColumn>
-                      </TableRow>
-                    </TableHeader>
-
-               <TableBody stripedRows={false} displayRowCheckbox={false}>
-				{this.props.items.map(function(item) {
-					return(
-
-                         <TableRow key={item.id}>
-                            <TableRowColumn>{item.name}</TableRowColumn>
-                            <TableRowColumn>{item.min_bid}</TableRowColumn>
-                            <TableRowColumn>{item.buyout}</TableRowColumn>
-                            <TableRowColumn>{item.owner}</TableRowColumn>
-                            <TableRowColumn>{_this.formatStartDate(item.start_date)}</TableRowColumn>
-                            <TableRowColumn><IconButton><ActionEdit /></IconButton></TableRowColumn>
-							<TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
-                        </TableRow>
-
-
-					);
-				})}
-
-                </TableBody>
-
-
-                </Table>
+               		<TextField style={{padding: 15, margin: 15}} hintText="Item Filter" floatingLabelText="Item Filter" value={this.state.filterValue} onChange={this.filter} />
+	                <Table onCellClick={this.handleCellClick}>
+	                    <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
+	                        <TableRow>
+	                        <TableHeaderColumn>Name</TableHeaderColumn>
+	                        <TableHeaderColumn>Min. Bid</TableHeaderColumn>
+	                        <TableHeaderColumn>Buyout</TableHeaderColumn>
+	                        <TableHeaderColumn>Owner</TableHeaderColumn>
+	                        <TableHeaderColumn>Start Date</TableHeaderColumn>
+	                        <TableHeaderColumn></TableHeaderColumn>
+	                        <TableHeaderColumn></TableHeaderColumn>
+	                      </TableRow>
+	                    </TableHeader>
+	
+		               <TableBody stripedRows={false} displayRowCheckbox={false}>
+						{this.props.items.map(function(item) {
+							return(
+		
+		                         <TableRow key={item.id}>
+		                            <TableRowColumn>{item.name}</TableRowColumn>
+		                            <TableRowColumn>{item.min_bid}</TableRowColumn>
+		                            <TableRowColumn>{item.buyout}</TableRowColumn>
+		                            <TableRowColumn>{item.owner}</TableRowColumn>
+		                            <TableRowColumn>{_this.formatStartDate(item.start_date)}</TableRowColumn>
+		                            <TableRowColumn><IconButton><ActionEdit /></IconButton></TableRowColumn>
+									<TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
+		                        </TableRow>
+		
+		
+							);
+						})}
+		
+		                </TableBody>
+	
+	
+	                </Table>
             </div>
         )
     }
