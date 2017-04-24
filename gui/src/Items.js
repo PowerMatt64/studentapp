@@ -30,6 +30,8 @@ export default class Items extends React.Component {
             owner:'',
             id:'',
 			filterValue:'',
+            doneTypingInterval: 200,
+            typingTimer:null,
             start_date:new Date()
         }
     	this.handleCancel = this.handleCancel.bind(this);
@@ -41,12 +43,22 @@ export default class Items extends React.Component {
         this.handleCellClick = this.handleCellClick.bind(this);
         this.formatStartDate = this.formatStartDate.bind(this);
     	this.filter = this.filter.bind(this);
+    	this.performFilter = this.performFilter.bind(this);
     }
 
 	filter(e) {
 		let value = e.target.value;
 		this.setState({filterValue:value});
-		this.props.connection.send('{"for":"items","filter":"'+value+'"}');
+		
+		if (this.state.typingTimer!=null)
+			clearTimeout(this.state.typingTimer);
+		this.setState({typingTimer:setTimeout(this.performFilter, this.state.doneTypingInterval)});
+	}
+	performFilter() {
+		clearTimeout(this.state.typingTimer);
+
+		if (this.state.filterValue.length>1)
+			this.props.connection.send('{"for":"items","filter":"'+this.state.filterValue+'"}');
 	}
 
     // handle realtime updates / component mount

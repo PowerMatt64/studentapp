@@ -31,7 +31,9 @@ export default class Students extends React.Component {
             credits:'',
             creditsadd:5,
 			filterValue:'',
-            id:''
+            id:'',
+            doneTypingInterval: 200,
+            typingTimer:null
         }
     	this.handleCancel = this.handleCancel.bind(this);
         this.handleCreditCancel = this.handleCreditCancel.bind(this);
@@ -43,6 +45,7 @@ export default class Students extends React.Component {
         this.handleCellClick = this.handleCellClick.bind(this);
         this.formatCredits = this.formatCredits.bind(this);
     	this.filter = this.filter.bind(this);
+    	this.performFilter = this.performFilter.bind(this);
     }
 
     // handle realtime updates / component mount
@@ -50,10 +53,23 @@ export default class Students extends React.Component {
         var _this = this;
     }
 	filter(e) {
+
 		let value = e.target.value;
 		this.setState({filterValue:value});
-		this.props.connection.send('{"for":"students","filter":"'+value+'"}');
+		
+		if (this.state.typingTimer!=null)
+			clearTimeout(this.state.typingTimer);
+		this.setState({typingTimer:setTimeout(this.performFilter, this.state.doneTypingInterval)});
+		
 	}
+	
+	performFilter() {
+		clearTimeout(this.state.typingTimer);
+
+		if (this.state.filterValue.length>1)
+			this.props.connection.send('{"for":"students","filter":"'+this.state.filterValue+'"}');
+	}
+	
     formatCredits(c) {
     	if (!c) return 0;
     	var humanFormat = require('human-format');
