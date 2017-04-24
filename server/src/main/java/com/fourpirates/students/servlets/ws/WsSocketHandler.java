@@ -37,15 +37,14 @@ public class WsSocketHandler implements Runnable {
 						String leaderBoard = getLeaderboard(null);
 						for (Client s : clients.values()) {
 							if (s.getSession().isOpen()) {
+								if (s.getFilterFor("items")!=null) items = getItems(s.getFilterFor("items"));
+								if (s.getFilterFor("students")!=null) students = getStudents(s.getFilterFor("students"));
 								if (type.equalsIgnoreCase("item"))
 									s.getSession().getBasicRemote().sendText(items);
 								else if (type.equalsIgnoreCase("student")){
 									s.getSession().getBasicRemote().sendText(students);
 									s.getSession().getBasicRemote().sendText(leaderBoard);
 								}else if (type.startsWith("updateClient") && s.getId().equals(type.substring(13))) {
-									if (s.getFilterFor("items")!=null) {
-										items = getItems(s.getFilterFor("items"));
-									}
 									s.getSession().getBasicRemote().sendText(students);
 									s.getSession().getBasicRemote().sendText(leaderBoard);
 									s.getSession().getBasicRemote().sendText(items);

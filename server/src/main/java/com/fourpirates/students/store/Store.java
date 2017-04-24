@@ -104,6 +104,13 @@ public class Store {
 	
 	public List<Map<String,Object>> getStudents(String filterString) throws Exception{
 		BasicDBObject filter = new BasicDBObject();
+		if (filterString!=null) {
+			List<BasicDBObject> orItems = new ArrayList<BasicDBObject>();
+			orItems.add(new BasicDBObject("first_name", new BasicDBObject("$regex", ".*"+filterString+".*").append("$options", "i")));
+			orItems.add(new BasicDBObject("last_name", new BasicDBObject("$regex", ".*"+filterString+".*").append("$options", "i")));
+			orItems.add(new BasicDBObject("email", new BasicDBObject("$regex", ".*"+filterString+".*").append("$options", "i")));
+			filter.put("$or", orItems);
+		}
 		return getCollection(students,filter,"email",true);
 	}
 	public List<Map<String,Object>> getLeaderboard(String filterString) throws Exception{
