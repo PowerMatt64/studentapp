@@ -129,7 +129,7 @@ export default class Main extends React.Component {
 
 				<Drawer open={this.state.open} docked={false}>
 					<AppBar title="Menu" showMenuIconButton={false}/>
-					<Menu onChange={this.routeHandler.bind(this)}>
+					<Menu onChange={this.routeHandler.bind(this)} disableAutoFocus={true}>
 						<MenuItem value="studentsMenu" leftIcon={<FontIcon className="material-icons" >supervisor_account</FontIcon>}>Students</MenuItem>
 						<MenuItem value="leaderboardMenu" leftIcon={<FontIcon className="material-icons" >format_list_numbered</FontIcon>}>Leaderboard</MenuItem>
 						<MenuItem value="itemsMenu" leftIcon={<FontIcon className="material-icons" >whatshot</FontIcon>}>Auction Items</MenuItem>

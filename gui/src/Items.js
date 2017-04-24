@@ -173,8 +173,8 @@ export default class Items extends React.Component {
 				</Dialog>
 
                 <FloatingActionButton style={fabStyle} onTouchTap={() => { this.onAddHandler(); }}><ContentAdd /></FloatingActionButton>
-               		<TextField style={{padding: 15, margin: 15}} hintText="Item Filter" floatingLabelText="Item Filter" value={this.state.filterValue} onChange={this.filter} />
-	                <Table onCellClick={this.handleCellClick}>
+               	<TextField style={{padding: 15, margin: 15}} hintText="Item Filter" floatingLabelText="Item Filter" onChange={this.filter} />
+	            <Table onCellClick={this.handleCellClick}>
 	                    <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
 	                        <TableRow>
 	                        <TableHeaderColumn>Name</TableHeaderColumn>

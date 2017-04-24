@@ -30,6 +30,7 @@ export default class Students extends React.Component {
             grade:'',
             credits:'',
             creditsadd:5,
+			filterValue:'',
             id:''
         }
     	this.handleCancel = this.handleCancel.bind(this);
@@ -41,12 +42,18 @@ export default class Students extends React.Component {
     	this.handleInputChange = this.handleInputChange.bind(this);
         this.handleCellClick = this.handleCellClick.bind(this);
         this.formatCredits = this.formatCredits.bind(this);
+    	this.filter = this.filter.bind(this);
     }
 
     // handle realtime updates / component mount
     componentDidMount() {
         var _this = this;
     }
+	filter(e) {
+		let value = e.target.value;
+		this.setState({filterValue:value});
+		this.props.connection.send('{"for":"students","filter":"'+value+'"}');
+	}
     formatCredits(c) {
     	if (!c) return 0;
     	var humanFormat = require('human-format');
@@ -195,6 +202,8 @@ export default class Students extends React.Component {
 				</Dialog>
 
                 <FloatingActionButton style={fabStyle} onTouchTap={() => { this.onAddHandler(); }}><ContentAdd /></FloatingActionButton>
+
+                <TextField style={{padding: 15, margin: 15}} hintText="Student Filter" floatingLabelText="Student Filter" onChange={this.filter} />
 
                 <Table onCellClick={this.handleCellClick}>
                     <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
