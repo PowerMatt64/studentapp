@@ -2,8 +2,11 @@
   "name": "students",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/StudentApp",
   "dependencies": {
+    "human-format": "^0.8.0",
     "react": "^15.4.2",
+    "react-cookie": "^1.0.5",
     "react-dom": "^15.4.2"
   },
   "devDependencies": {
