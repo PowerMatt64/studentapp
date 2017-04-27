@@ -12,6 +12,10 @@
 		<servlet-name>item</servlet-name>
 		<servlet-class>com.fourpirates.students.servlets.ItemServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>auction</servlet-name>
+		<servlet-class>com.fourpirates.students.servlets.AuctionServlet</servlet-class>
+	</servlet>
 	<listener>
 		<listener-class>com.fourpirates.students.servlets.ws.WsSocket</listener-class>
 	</listener>
@@ -23,6 +27,10 @@
 	<servlet-mapping>
 		<servlet-name>item</servlet-name>
 		<url-pattern>/item</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>auction</servlet-name>
+		<url-pattern>/auction</url-pattern>
 	</servlet-mapping>
     
 	<security-constraint>
