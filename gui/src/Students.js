@@ -6,7 +6,7 @@ import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import axios from 'axios';
 import ActionDelete from 'material-ui/svg-icons/action/delete';
-import ActionCredit from 'material-ui/svg-icons/action/account-balance-wallet';
+import ActionCredit from 'material-ui/svg-icons/content/add-circle';
 import ActionEdit from 'material-ui/svg-icons/image/edit';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 import IconButton from 'material-ui/IconButton';

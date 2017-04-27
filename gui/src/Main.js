@@ -2,6 +2,7 @@ import React from 'react';
 import Students from './Students';
 import Leaderboard from './Leaderboard';
 import Items from './Items';
+import Auction from './Auction';
 import AppBar from 'material-ui/AppBar';
 import IconButton from 'material-ui/IconButton';
 import FlatButton from 'material-ui/FlatButton';
@@ -29,12 +30,14 @@ export default class Main extends React.Component {
         	students: [],
         	leaderboard: [],
         	items: [],
+        	auction: [],
 			open: false,
 			displayName:null,
 			photoURL:null,
 			email:null,
 			connection:null,
 			firstName:null,
+			credits:null,
 			lastName:null
         }
         this.getConnection = this.getConnection.bind(this);
@@ -45,13 +48,14 @@ export default class Main extends React.Component {
     componentDidMount() {
         var _this = this;
 		
-			axios.get(host+"/user.jsp").then(function(result){
+		axios.get(host+"/user.jsp").then(function(result){
 					_this.setState({displayName:result.data.n});
 					_this.setState({photoURL:result.data.i});
 					_this.setState({email:result.data.e});
+					_this.setState({credits:result.data.c});
 					_this.getConnection();
 					ReactDOM.findDOMNode(_this.refs.students).style.display='block';
-			});
+		});
 		
 		ReactDOM.findDOMNode(this.refs.students).style.display='block';
     }
@@ -65,9 +69,11 @@ export default class Main extends React.Component {
 		ReactDOM.findDOMNode(this.refs.students).style.display='none';
 		ReactDOM.findDOMNode(this.refs.leaderboard).style.display='none';
 		ReactDOM.findDOMNode(this.refs.items).style.display='none';
+		ReactDOM.findDOMNode(this.refs.auction).style.display='none';
 		if (menu==='studentsMenu') ReactDOM.findDOMNode(this.refs.students).style.display='block';
 		if (menu==='leaderboardMenu') ReactDOM.findDOMNode(this.refs.leaderboard).style.display='block';
 		if (menu==='itemsMenu') ReactDOM.findDOMNode(this.refs.items).style.display='block';
+		if (menu==='auctionMenu') ReactDOM.findDOMNode(this.refs.auction).style.display='block';
 		this.setState({open: false});
 	}
 
@@ -96,6 +102,8 @@ export default class Main extends React.Component {
 				_this.setState({leaderboard: msg.items});
 			} else if (msg.a==='items') {
 				_this.setState({items: msg.items});
+			} else if (msg.a==='auction') {
+				_this.setState({auction: msg.items});
 			} else {
 				console.log('unknown r/t update : ',evt);
 			}
@@ -133,12 +141,16 @@ export default class Main extends React.Component {
 						<MenuItem value="studentsMenu" leftIcon={<FontIcon className="material-icons" >supervisor_account</FontIcon>}>Students</MenuItem>
 						<MenuItem value="leaderboardMenu" leftIcon={<FontIcon className="material-icons" >format_list_numbered</FontIcon>}>Leaderboard</MenuItem>
 						<MenuItem value="itemsMenu" leftIcon={<FontIcon className="material-icons" >whatshot</FontIcon>}>Auction Items</MenuItem>
+						<MenuItem value="auctionMenu" leftIcon={<FontIcon className="material-icons" >whatshot</FontIcon>}>Auction</MenuItem>
                     </Menu>
                 </Drawer>
 
 				<div ref="students" style={contentStyle}><Students connection={this.state.connection} students={this.state.students}/></div>
 				<div ref="leaderboard" style={contentStyle}><Leaderboard connection={this.state.connection} leaderboard={this.state.leaderboard}/></div>
 				<div ref="items" style={contentStyle}><Items connection={this.state.connection} items={this.state.items}/></div>
+				<div ref="auction" style={contentStyle}>
+					<Auction email={this.state.email} connection={this.state.connection} auction={this.state.auction}/>
+				</div>
 
             </div>
         )
