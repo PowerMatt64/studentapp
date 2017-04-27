@@ -33,19 +33,24 @@ public class WsSocketHandler implements Runnable {
 					System.out.println("update recvd");
 					try {
 						String items = getItems(null);
+						String auction = getAuction(null);
 						String students = getStudents(null);
 						String leaderBoard = getLeaderboard(null);
 						for (Client s : clients.values()) {
 							if (s.getSession().isOpen()) {
 								if (s.getFilterFor("items")!=null) items = getItems(s.getFilterFor("items"));
 								if (s.getFilterFor("students")!=null) students = getStudents(s.getFilterFor("students"));
+								if (s.getFilterFor("auction")!=null) auction = getAuction(s.getFilterFor("auction"));
 								if (type.equalsIgnoreCase("item"))
 									s.getSession().getBasicRemote().sendText(items);
-								else if (type.equalsIgnoreCase("student")){
+								else if (type.equalsIgnoreCase("auction")){
+									s.getSession().getBasicRemote().sendText(auction);
+								} else if (type.equalsIgnoreCase("student")){
 									s.getSession().getBasicRemote().sendText(students);
 									s.getSession().getBasicRemote().sendText(leaderBoard);
 								}else if (type.startsWith("updateClient") && s.getId().equals(type.substring(13))) {
 									s.getSession().getBasicRemote().sendText(students);
+									s.getSession().getBasicRemote().sendText(auction);
 									s.getSession().getBasicRemote().sendText(leaderBoard);
 									s.getSession().getBasicRemote().sendText(items);
 								} else
@@ -86,14 +91,14 @@ public class WsSocketHandler implements Runnable {
 			clients.get(clientId).disconnect();
 	}
 
+	private String getAuction(String filter) throws Exception {
+		return getListAsJson("auction",Store.getInstance().getAuction(filter));
+	}
 	private String getStudents(String filter) throws Exception {
 		return getListAsJson("students",Store.getInstance().getStudents(filter));
 	}
 	private String getLeaderboard(String filter) throws Exception{
 		return getListAsJson("leaderboard",Store.getInstance().getLeaderboard(filter));
-	}
-	private String getItems() throws Exception {
-		return getItems(null);
 	}
 	private String getItems(String filter) throws Exception {
 		return getListAsJson("items",Store.getInstance().getItems(filter));

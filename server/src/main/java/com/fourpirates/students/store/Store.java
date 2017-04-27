@@ -66,6 +66,8 @@ public class Store {
 	public String addItem(Map<String,String> pitem) throws Exception {
 		Document item = new Document();
 		item.putAll(pitem);
+		item.put("owner", "House");
+		item.put("current_bid", 0);
 		items.insertOne(item);
 		String id = item.getObjectId("_id").toHexString();
 		QUEUE.put("item");
@@ -118,6 +120,13 @@ public class Store {
 		return getCollection(students,filter, "credits",false);
 	}
 	public List<Map<String,Object>> getItems(String filterString) throws Exception{
+		BasicDBObject filter = new BasicDBObject();
+		if (filterString!=null) {
+			filter.put("name", new BasicDBObject("$regex", ".*"+filterString+".*").append("$options", "i"));
+		}
+		return getCollection(items,filter);
+	}
+	public List<Map<String,Object>> getAuction(String filterString) throws Exception{
 		BasicDBObject filter = new BasicDBObject();
 		if (filterString!=null) {
 			filter.put("name", new BasicDBObject("$regex", ".*"+filterString+".*").append("$options", "i"));
