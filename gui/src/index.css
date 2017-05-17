@@ -8,3 +8,9 @@ body {
   background-attachment: fixed;
   background-size: 356px 356px;
 }
+
+a {color: white;}
+a:link {color: white;}
+a:visited {color: white;}
+a:hover {color: white;}
+a:active {color: white;}

@@ -56,20 +56,20 @@ export default class Students extends React.Component {
 
 		let value = e.target.value;
 		this.setState({filterValue:value});
-		
+
 		if (this.state.typingTimer!=null)
 			clearTimeout(this.state.typingTimer);
 		this.setState({typingTimer:setTimeout(this.performFilter, this.state.doneTypingInterval)});
-		
+
 	}
-	
+
 	performFilter() {
 		clearTimeout(this.state.typingTimer);
 
 		if (this.state.filterValue.length>1)
 			this.props.connection.send('{"for":"students","filter":"'+this.state.filterValue+'"}');
 	}
-	
+
     formatCredits(c) {
     	if (!c) return 0;
     	var humanFormat = require('human-format');
@@ -135,7 +135,7 @@ export default class Students extends React.Component {
         if (e.target.id==="grade") this.setState({grade:value});
         if (e.target.id==="credits") this.setState({credits:value});
     }
-	
+
 
     // handle row interaction
     handleCellClick(rowNum,columnNum) {
@@ -165,7 +165,7 @@ export default class Students extends React.Component {
         	this.setState({addCreditDialogOpen: true});
         }
     }
-    
+
     render() {
     	var _this = this;
 		const fabStyle = {
@@ -188,11 +188,11 @@ export default class Students extends React.Component {
 
 		          open={this.state.addDialogOpen}
 		        >
-				<TextField hintText="First Name" id="first_name" defaultValue={this.state.first_name} onChange={this.handleInputChange}/><br />
-				<TextField hintText="Last Name" id="last_name" defaultValue={this.state.last_name} onChange={this.handleInputChange} /><br />
-                <TextField hintText="Email" id="email" defaultValue={this.state.email} onChange={this.handleInputChange} /><br />
-                <TextField hintText="Grade" id="grade" defaultValue={this.state.grade} onChange={this.handleInputChange} /><br />
-                <TextField hintText="Cactus Credits" id="credits" defaultValue={this.state.credits} onChange={this.handleInputChange} /><br />
+				<TextField hintText="First Name" floatingLabelText="First Name" id="first_name" defaultValue={this.state.first_name} onChange={this.handleInputChange}/><br />
+				<TextField hintText="Last Name" floatingLabelText="Last Name" id="last_name" defaultValue={this.state.last_name} onChange={this.handleInputChange} /><br />
+                <TextField hintText="Email" floatingLabelText="Email" id="email" defaultValue={this.state.email} onChange={this.handleInputChange} /><br />
+                <TextField hintText="Grade" floatingLabelText="Grade" id="grade" defaultValue={this.state.grade} onChange={this.handleInputChange} /><br />
+                <TextField hintText="Cactus Credits" floatingLabelText="Credits" id="credits" defaultValue={this.state.credits} onChange={this.handleInputChange} /><br />
 				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleCancel}/>
 				<FlatButton label="Submit" primary={false} onTouchTap={this.handleSubmit}/>
         	</Dialog>
@@ -202,7 +202,7 @@ export default class Students extends React.Component {
 
 		          open={this.state.addCreditDialogOpen}
 		        >
-				
+
               <TextField hintText="Cactus Credits" id="credits" type="number" value={this.state.creditsadd} onChange={this.handleInputChange} /><br />
 				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleCreditCancel}/>
 				<FlatButton label="Submit" primary={false} onTouchTap={this.handleCreditSubmit}/>

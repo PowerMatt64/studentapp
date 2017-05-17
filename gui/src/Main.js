@@ -42,12 +42,12 @@ export default class Main extends React.Component {
         }
         this.getConnection = this.getConnection.bind(this);
     }
-	
+
 
     // handle realtime updates / component mount
     componentDidMount() {
         var _this = this;
-		
+
 		axios.get(host+"/user.jsp").then(function(result){
 					_this.setState({displayName:result.data.n});
 					_this.setState({photoURL:result.data.i});
@@ -56,7 +56,7 @@ export default class Main extends React.Component {
 					_this.getConnection();
 					ReactDOM.findDOMNode(_this.refs.students).style.display='block';
 		});
-		
+
 		ReactDOM.findDOMNode(this.refs.students).style.display='block';
     }
 
@@ -80,7 +80,7 @@ export default class Main extends React.Component {
 	getConnection() {
 		var _this = this;
 		var loc = window.location, new_uri;
-		
+
 		if (loc.protocol === "https:") {
 		    new_uri = "wss:";
 		} else {
@@ -88,7 +88,7 @@ export default class Main extends React.Component {
 		}
 		new_uri += "//" + loc.host;
 		new_uri += loc.pathname + "studentws";
-		
+
         _this.state.connection = new WebSocket(new_uri)
         _this.state.connection.onopen = evt => {
     		this.state.connection.send(
@@ -141,7 +141,7 @@ export default class Main extends React.Component {
 						<MenuItem value="studentsMenu" leftIcon={<FontIcon className="material-icons" >supervisor_account</FontIcon>}>Students</MenuItem>
 						<MenuItem value="leaderboardMenu" leftIcon={<FontIcon className="material-icons" >format_list_numbered</FontIcon>}>Leaderboard</MenuItem>
 						<MenuItem value="itemsMenu" leftIcon={<FontIcon className="material-icons" >whatshot</FontIcon>}>Auction Items</MenuItem>
-						<MenuItem value="auctionMenu" leftIcon={<FontIcon className="material-icons" >whatshot</FontIcon>}>Auction</MenuItem>
+						<MenuItem value="auctionMenu" leftIcon={<FontIcon className="material-icons" >account_balance</FontIcon>}>Auction</MenuItem>
                     </Menu>
                 </Drawer>
 

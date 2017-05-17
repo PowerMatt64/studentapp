@@ -13,8 +13,9 @@ import IconButton from 'material-ui/IconButton';
 import DatePicker from 'material-ui/DatePicker';
 import {Card, CardActions, CardHeader} from 'material-ui/Card';
 import FontIcon from 'material-ui/FontIcon';
+import Chip from 'material-ui/Chip';
+import Avatar from 'material-ui/Avatar';
 
-//const host = "";
 const host = "/StudentApp";
 
 export default class Auction extends React.Component {
@@ -91,12 +92,12 @@ export default class Auction extends React.Component {
     	var dateFormat = require('dateformat');
     	return dateFormat(d, "dddd, mmmm dS");
     }
-	
+
     handleInputChange(e) {
         let value = e.target.value;
 		if (e.target.id==="credits") this.setState({creditsToBid:value});
 	}
-	
+
     render() {
 
     	var _this = this;
@@ -143,7 +144,7 @@ export default class Auction extends React.Component {
 							return(
 
 		                         <TableRow key={item.id}>
-		                            <TableRowColumn>{item.name}</TableRowColumn>
+		                            <TableRowColumn><Chip><Avatar src={item.thumb}/>{item.name}</Chip></TableRowColumn>
 		                            <TableRowColumn>{item.min_bid}</TableRowColumn>
 		                            <TableRowColumn>{item.buyout}</TableRowColumn>
 		                            <TableRowColumn>{item.owner}</TableRowColumn>
