@@ -251,7 +251,7 @@ export default class Items extends React.Component {
 						{this.state.tileData.map((tile) => (
 
 							<GridTile key={tile.img} title={tile.title}
-								subtitle={<span>by <a href={tile.author_link} target="_blank"><b>{tile.author}</b></a></span>}
+								subtitle={<span>by <a href={tile.author_link + "?utm_source=NW Auction&utm_medium=referral&utm_campaign=api-credit"} target="_blank"><b>{tile.author}</b></a> / <a href="https://unsplash.com/" target="_blank"><b>Unsplash</b></a></span>}
 								onClick={this.setPicture.bind(this, tile)} >
 								<img src={tile.img} />
 							</GridTile>
