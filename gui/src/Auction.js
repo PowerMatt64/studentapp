@@ -15,6 +15,7 @@ import {Card, CardActions, CardHeader} from 'material-ui/Card';
 import FontIcon from 'material-ui/FontIcon';
 import Chip from 'material-ui/Chip';
 import Avatar from 'material-ui/Avatar';
+import {GridList, GridTile} from 'material-ui/GridList';
 
 const host = "/StudentApp";
 
@@ -125,41 +126,21 @@ export default class Auction extends React.Component {
 					<FlatButton label="Yes" primary={false} onTouchTap={this.handleBidSubmit}/>
 				</Dialog>
 
-                <FloatingActionButton style={fabStyle} onTouchTap={() => { this.onAddHandler(); }}><ContentAdd /></FloatingActionButton>
                	<TextField style={{padding: 15, margin: 15}} hintText="Item Filter" floatingLabelText="Item Filter" onChange={this.filter} />
-	            <Table onCellClick={this.handleCellClick}>
-	                    <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
-	                        <TableRow>
-	                        <TableHeaderColumn>Name</TableHeaderColumn>
-	                        <TableHeaderColumn>Min. Bid</TableHeaderColumn>
-	                        <TableHeaderColumn>Buyout</TableHeaderColumn>
-	                        <TableHeaderColumn>Owner</TableHeaderColumn>
-	                        <TableHeaderColumn>Current Bid</TableHeaderColumn>
-	                        <TableHeaderColumn></TableHeaderColumn>
-	                      </TableRow>
-	                    </TableHeader>
 
-		               <TableBody stripedRows={false} displayRowCheckbox={false}>
-						{this.props.auction.map(function(item) {
-							return(
-
-		                         <TableRow key={item.id}>
-		                            <TableRowColumn><Chip><Avatar src={item.thumb}/>{item.name}</Chip></TableRowColumn>
-		                            <TableRowColumn>{item.min_bid}</TableRowColumn>
-		                            <TableRowColumn>{item.buyout}</TableRowColumn>
-		                            <TableRowColumn>{item.owner}</TableRowColumn>
-		                            <TableRowColumn>{item.current_bid}</TableRowColumn>
-		                            <TableRowColumn><IconButton><ActionBid /></IconButton></TableRowColumn>
-		                        </TableRow>
-
-
-							);
-						})}
-
-		                </TableBody>
-
-
-	                </Table>
+               	<GridList cellHeight={180} cols={4}>
+               		{this.props.auction.map(function(item) {
+               			return(
+	               			<GridTile key={item.id} title={item.name} actionPosition="left" titlePosition="top"
+	               				subtitle={<span>{item.owner}&nbsp;<b>Min:{item.min_bid}, Buyout:{item.buyout}</b></span>}
+	               				actionIcon={<IconButton><ActionBid color="white" /></IconButton>}
+	               				>
+	               				<img src={item.img} />
+	               			</GridTile>
+               			)
+               		})}
+               	</GridList>
+               	
             </div>
         )
     }
