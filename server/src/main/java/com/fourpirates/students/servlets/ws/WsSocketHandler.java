@@ -41,9 +41,10 @@ public class WsSocketHandler implements Runnable {
 								if (s.getFilterFor("items")!=null) items = getItems(s.getFilterFor("items"));
 								if (s.getFilterFor("students")!=null) students = getStudents(s.getFilterFor("students"));
 								if (s.getFilterFor("auction")!=null) auction = getAuction(s.getFilterFor("auction"));
-								if (type.equalsIgnoreCase("item"))
+								if (type.equalsIgnoreCase("item")) {
 									s.getSession().getBasicRemote().sendText(items);
-								else if (type.equalsIgnoreCase("auction")){
+									s.getSession().getBasicRemote().sendText(auction);
+								} else if (type.equalsIgnoreCase("auction")){
 									s.getSession().getBasicRemote().sendText(auction);
 								} else if (type.equalsIgnoreCase("student")){
 									s.getSession().getBasicRemote().sendText(students);
