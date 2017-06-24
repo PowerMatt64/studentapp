@@ -4,7 +4,7 @@ import ContentAdd from 'material-ui/svg-icons/content/add';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
-import axios from 'axios';
+
 import ActionDelete from 'material-ui/svg-icons/action/delete';
 import ActionBid from 'material-ui/svg-icons/action/thumb-up';
 import ActionEdit from 'material-ui/svg-icons/image/edit';
@@ -71,8 +71,7 @@ export default class Auction extends React.Component {
 	    this.setState({bidDialogOpen: false});
 	}
 	handleBidSubmit(){
-		//var deleteURL = host+"/item?id="+this.state.id;
-        //axios.delete(deleteURL).then(function(result){});
+
         this.setState({bidDialogOpen:false});
 	}
 
@@ -82,9 +81,9 @@ export default class Auction extends React.Component {
         var _this = this;
         console.log(columnNum);
         if (columnNum===6) {
-        	console.log(this.props.auction[rowNum]);
-        	this.setState({id:this.props.auction[rowNum].id});
-        	this.setState({name:this.props.auction[rowNum].name});
+        	//console.log(this.props.auction[rowNum]);
+        	this.setState({id:this.props.items[rowNum].id});
+        	this.setState({name:this.props.items[rowNum].name});
         	this.setState({bidDialogOpen:true});
         }
     }
@@ -129,10 +128,10 @@ export default class Auction extends React.Component {
                	<TextField style={{padding: 15, margin: 15}} hintText="Item Filter" floatingLabelText="Item Filter" onChange={this.filter} />
 
                	<GridList cellHeight={180} cols={4}>
-               		{this.props.auction.map(function(item) {
+               		{this.props.items.map(function(item) {
                			return(
 	               			<GridTile key={item.id} title={item.name} actionPosition="left" titlePosition="top"
-	               				subtitle={<span>{item.owner}&nbsp;<b>Min:{item.min_bid}, Buyout:{item.buyout}</b></span>}
+	               				subtitle={<span>Min bid:{item.minBid}&nbsp;<b>Bid:{item.bid}, Bidder:{item.bidder}</b></span>}
 	               				actionIcon={<IconButton><ActionBid color="white" /></IconButton>}
 	               				>
 	               				<img src={item.img} />
@@ -140,7 +139,7 @@ export default class Auction extends React.Component {
                			)
                		})}
                	</GridList>
-               	
+
             </div>
         )
     }

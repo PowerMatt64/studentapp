@@ -17,6 +17,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
 injectTapEventPlugin();
 
+
 const muiTheme = getMuiTheme({
     //ea1c30
     palette: {
@@ -43,12 +44,12 @@ const muiTheme = getMuiTheme({
 
 const App = () => (
   <MuiThemeProvider muiTheme={muiTheme}>
-        <Main />
+      <Main />
   </MuiThemeProvider>
 );
 
 
 ReactDOM.render(
-  <App />,
-  document.getElementById('app')
+  <App />
+  , document.getElementById('app')
 );

@@ -140,12 +140,13 @@ export default class Students extends React.Component {
     // handle row interaction
     handleCellClick(rowNum,columnNum) {
         var _this = this;
-        if (columnNum===8) {
+				
+        if (columnNum===7) {
         	this.setState({id:this.props.students[rowNum].id});
         	this.setState({first_name:this.props.students[rowNum].first_name});
         	this.setState({confirmDialogOpen:true});
 
-        } else if (columnNum===7) {
+        } else if (columnNum===6) {
         	this.setState({title:'Edit Student'});
         	this.setState({first_name:this.props.students[rowNum].first_name});
         	this.setState({last_name:this.props.students[rowNum].last_name});
@@ -154,7 +155,7 @@ export default class Students extends React.Component {
         	this.setState({credits:this.props.students[rowNum].credits});
         	this.setState({id:this.props.students[rowNum].id});
         	this.setState({addDialogOpen: true});
-        } else if (columnNum===9) {
+        } else if (columnNum===8) {
         	this.setState({title:'Add Credits'});
         	this.setState({first_name:this.props.students[rowNum].first_name});
         	this.setState({last_name:this.props.students[rowNum].last_name});
@@ -224,8 +225,7 @@ export default class Students extends React.Component {
                 <Table onCellClick={this.handleCellClick}>
                     <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
                         <TableRow>
-                        <TableHeaderColumn>First Name</TableHeaderColumn>
-                        <TableHeaderColumn>Last Name</TableHeaderColumn>
+                        <TableHeaderColumn>Name</TableHeaderColumn>
                         <TableHeaderColumn>Email</TableHeaderColumn>
                         <TableHeaderColumn>Grade</TableHeaderColumn>
                         <TableHeaderColumn>Credits</TableHeaderColumn>
@@ -241,12 +241,11 @@ export default class Students extends React.Component {
 					return(
 
                          <TableRow key={student.id}>
-                            <TableRowColumn>{student.first_name}</TableRowColumn>
-                            <TableRowColumn>{student.last_name}</TableRowColumn>
+                            <TableRowColumn>{student.displayName}</TableRowColumn>
                             <TableRowColumn>{student.email}</TableRowColumn>
                             <TableRowColumn>{student.grade}</TableRowColumn>
                             <TableRowColumn>{_this.formatCredits(student.credits)}</TableRowColumn>
-                            <TableRowColumn>{student.last_login}</TableRowColumn>
+                            <TableRowColumn>{student.lastLogin}</TableRowColumn>
                             <TableRowColumn><IconButton><ActionEdit /></IconButton></TableRowColumn>
 							<TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
 							<TableRowColumn><IconButton><ActionCredit /></IconButton></TableRowColumn>

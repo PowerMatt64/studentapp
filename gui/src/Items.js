@@ -4,7 +4,7 @@ import ContentAdd from 'material-ui/svg-icons/content/add';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
-import axios from 'axios';
+import uuid from 'uuid';
 import ActionDelete from 'material-ui/svg-icons/action/delete';
 import ActionEdit from 'material-ui/svg-icons/image/edit';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
@@ -20,9 +20,11 @@ import RadioButtonUnchecked from 'material-ui/svg-icons/toggle/radio-button-unch
 import {GridList, GridTile} from 'material-ui/GridList';
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip';
+import * as firebase from 'firebase';
 
 //const host = "";
 const host = "/StudentApp";
+const uuidv4 = require('uuid/v4');
 const unsplash = new Unsplash({
   applicationId: "9e002592f3dfdce28a4578101cefa875f927053c5222d8d93ab33d47d81fafac",
   secret: "41042b92830f69b28ee6596de2b4e1d893891426254608f064e02178749dd2d8",
@@ -96,7 +98,7 @@ export default class Items extends React.Component {
 		this.setState({picture:''});
 		this.setState({owner:''});
 		this.setState({start_date:new Date()});
-		this.setState({id:'-1'});
+		this.setState({id:uuidv4()});
  		this.setState({addDialogOpen: true});
 	}
 	handleCancel() {
@@ -107,25 +109,24 @@ export default class Items extends React.Component {
 	}
 	handleSubmit(e) {
         var _this = this;
-		axios.post(host+"/item",{
-				id:this.state.id,
-				name:this.state.name,
-				min_bid:this.state.min_bid,
-                buyout:this.state.buyout,
-                thumb:this.state.thumb,
-                picture:this.state.img,
-                owner:this.state.owner,
-                img:this.state.picture,
-                thumb:this.state.thumb,
-                start_date:this.state.start_date
-				}).then(function(result){
+        var itemsRef = firebase.database().ref('items/'+this.state.id).set({
+                  id:this.state.id,
+  				        name:this.state.name,
+  				        minBid:this.state.min_bid,
+                  buyout:this.state.buyout,
+                  thumb:this.state.thumb,
+                  owner:this.state.owner,
+                  img:this.state.picture,
+                  thumb:this.state.thumb,
+                  start_date:this.state.start_date
         });
 	    this.setState({addDialogOpen: false});
     }
 	handleConfirmSubmit(){
-		var deleteURL = host+"/item?id="+this.state.id;
-        axios.delete(deleteURL).then(function(result){});
-        this.setState({confirmDialogOpen:false});
+
+    var itemsRef = firebase.database().ref('items/'+this.state.id);
+    itemsRef.remove();
+    this.setState({confirmDialogOpen:false});
 	}
 	handleStartDateInputChange(e,d) {
 		this.setState({start_date:d});
@@ -279,10 +280,11 @@ export default class Items extends React.Component {
 	            <Table onCellClick={this.handleCellClick}>
 	                    <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
 	                        <TableRow>
+	                        <TableHeaderColumn></TableHeaderColumn>
 	                        <TableHeaderColumn>Name</TableHeaderColumn>
-	                        <TableHeaderColumn>Min. Bid</TableHeaderColumn>
-	                        <TableHeaderColumn>Buyout</TableHeaderColumn>
-	                        <TableHeaderColumn>Owner</TableHeaderColumn>
+                  	      <TableHeaderColumn>Min. Bid</TableHeaderColumn>
+	                        <TableHeaderColumn>Bid</TableHeaderColumn>
+                          <TableHeaderColumn>Bidder</TableHeaderColumn>
 	                        <TableHeaderColumn>Start Date</TableHeaderColumn>
 	                        <TableHeaderColumn></TableHeaderColumn>
 	                        <TableHeaderColumn></TableHeaderColumn>
@@ -294,13 +296,14 @@ export default class Items extends React.Component {
 							return(
 
 		                         <TableRow key={item.id}>
-		                            <TableRowColumn><Chip><Avatar src={item.thumb}/>{item.name}</Chip></TableRowColumn>
-		                            <TableRowColumn>{item.min_bid}</TableRowColumn>
-		                            <TableRowColumn>{item.buyout}</TableRowColumn>
-		                            <TableRowColumn>{item.owner}</TableRowColumn>
+		                            <TableRowColumn><Avatar src={item.img}/></TableRowColumn>
+                                <TableRowColumn>{item.name}</TableRowColumn>
+		                            <TableRowColumn>{item.minBid}</TableRowColumn>
+		                            <TableRowColumn>{item.bid}</TableRowColumn>
+                                <TableRowColumn>{item.bidder}</TableRowColumn>
 		                            <TableRowColumn>{_this.formatStartDate(item.start_date)}</TableRowColumn>
 		                            <TableRowColumn><IconButton><ActionEdit /></IconButton></TableRowColumn>
-									<TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
+									              <TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
 		                        </TableRow>
 
 
