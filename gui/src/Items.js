@@ -10,17 +10,22 @@ import ActionEdit from 'material-ui/svg-icons/image/edit';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 import IconButton from 'material-ui/IconButton';
 import DatePicker from 'material-ui/DatePicker';
+import TimePicker from 'material-ui/TimePicker';
 import {Card, CardActions, CardHeader} from 'material-ui/Card';
 import FontIcon from 'material-ui/FontIcon';
 import Unsplash, { toJson } from 'unsplash-js';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import MapsPersonPin from 'material-ui/svg-icons/maps/person-pin';
-import ImagePhotoLibrary from 'material-ui/svg-icons/image/photo-library';
+import PhotoLibrary from 'material-ui/svg-icons/image/photo-library';
 import RadioButtonUnchecked from 'material-ui/svg-icons/toggle/radio-button-unchecked';
 import {GridList, GridTile} from 'material-ui/GridList';
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip';
 import * as firebase from 'firebase';
+import Divider from 'material-ui/Divider';
+import AppBar from 'material-ui/AppBar';
+import Toggle from 'material-ui/Toggle';
+import Checkbox from 'material-ui/Checkbox';
 
 //const host = "";
 const host = "/StudentApp";
@@ -37,31 +42,44 @@ export default class Items extends React.Component {
 		super(props);
         this.state = {
             addDialogOpen:false,
+            changeImageDialog:false,
             confirmDialogOpen:false,
             title:'Add Item',
             name:'',
-            min_bid:'',
+            minBid:'',
             buyout:'',
-            owner:'',
             id:'',
-			filterValue:'',
+			      filterValue:'',
             doneTypingInterval: 200,
             typingTimer:null,
             imageSearchQuery:'',
             tileData: [],
-            picture:'',
+            img:'',
             thumb:'',
+            endDateDisabled:false,
+            endTimeDisabled:false,
             currentTab:'GeneralTab',
-            start_date:new Date()
+            endDate:new Date(),
+            firstComeFirstServe:false
         }
+
+        this.handleImgCancel = this.handleImgCancel.bind(this);
+        this.handleImgSubmit = this.handleImgSubmit.bind(this);
+
+        this.handleFCFSToggle = this.handleFCFSToggle.bind(this);
+
+
+
     	this.handleCancel = this.handleCancel.bind(this);
         this.handleConfirmCancel = this.handleConfirmCancel.bind(this);
         this.handleConfirmSubmit = this.handleConfirmSubmit.bind(this);
     	this.handleSubmit = this.handleSubmit.bind(this);
     	this.handleInputChange = this.handleInputChange.bind(this);
-    	this.handleStartDateInputChange = this.handleStartDateInputChange.bind(this);
+    	this.handleEndDateInputChange = this.handleEndDateInputChange.bind(this);
         this.handleCellClick = this.handleCellClick.bind(this);
-        this.formatStartDate = this.formatStartDate.bind(this);
+        this.formatEndDate = this.formatEndDate.bind(this);
+        this.getEndDateForTable = this.getEndDateForTable.bind(this);
+        this.formatBoolean = this.formatBoolean.bind(this);
     	this.filter = this.filter.bind(this);
     	this.performFilter = this.performFilter.bind(this);
     	this.handleImageSearchChange = this.handleImageSearchChange.bind(this);
@@ -92,15 +110,26 @@ export default class Items extends React.Component {
 	onAddHandler() {
 		this.setState({title:'Add Item'});
 		this.setState({name:''});
-		this.setState({min_bid:''});
+		this.setState({minBid:''});
 		this.setState({buyout:''});
-		this.setState({thumb:''});
-		this.setState({picture:''});
-		this.setState({owner:''});
-		this.setState({start_date:new Date()});
+		this.setState({endDate:new Date()});
+    this.setState({firstComeFirstServe:false});
 		this.setState({id:uuidv4()});
  		this.setState({addDialogOpen: true});
 	}
+
+  handleImgSubmit() {
+
+    firebase.database().ref('items/'+this.state.id).update({
+              img:this.state.img
+    });
+
+    this.setState({changeImageDialog: false});
+  }
+  handleImgCancel() {
+    this.setState({changeImageDialog: false});
+  }
+
 	handleCancel() {
 	    this.setState({addDialogOpen: false});
 	}
@@ -109,41 +138,41 @@ export default class Items extends React.Component {
 	}
 	handleSubmit(e) {
         var _this = this;
-        var itemsRef = firebase.database().ref('items/'+this.state.id).set({
+        if (!this.state.buyout) this.setState({buyout:0});
+        if (!this.state.minBid) this.setState({minBid:0});
+        var dateString = this.formatEndDate(Date());
+        if (this.state.endDate) {
+          dateString = this.formatEndDate(this.state.endDate);
+        }
+
+        firebase.database().ref('items/'+this.state.id).update({
                   id:this.state.id,
   				        name:this.state.name,
-  				        minBid:this.state.min_bid,
+  				        minBid:this.state.minBid,
                   buyout:this.state.buyout,
-                  thumb:this.state.thumb,
-                  owner:this.state.owner,
-                  img:this.state.picture,
-                  thumb:this.state.thumb,
-                  start_date:this.state.start_date
+                  firstComeFirstServe:this.state.firstComeFirstServe,
+                  endDate:this.state.endDate
         });
 	    this.setState({addDialogOpen: false});
-    }
+  }
 	handleConfirmSubmit(){
 
     var itemsRef = firebase.database().ref('items/'+this.state.id);
     itemsRef.remove();
     this.setState({confirmDialogOpen:false});
 	}
-	handleStartDateInputChange(e,d) {
-		this.setState({start_date:d});
+	handleEndDateInputChange(e,d) {
+		this.setState({endDate:d});
 	}
 	handleInputChange(e,d) {
-        let value = e.target.value;
-		if (e.target.id==="name") this.setState({name:value});
-		if (e.target.id==="min_bid") this.setState({min_bid:value});
-        if (e.target.id==="buyout") this.setState({buyout:value});
-        if (e.target.id==="owner") this.setState({owner:value});
-
-    }
+      let value = e.target.value;
+      if (e.target.id==="name") this.setState({name:value});
+      if (e.target.id==="minBid") this.setState({minBid:value});
+      if (e.target.id==="buyout") this.setState({buyout:value});
+  }
 	handleImageSearchChange(e,d) {
         let value = e.target.value;
         this.setState({imageSearchQuery:value});
-
-
 	}
 	handleImageKeyPress(event) {
 	  if (event.charCode === 13) {
@@ -175,8 +204,21 @@ export default class Items extends React.Component {
 	  }
 	}
 
+  handleFCFSToggle(e,isInputChecked) {
+    if (isInputChecked) {
+      this.setState({endDateDisabled:true});
+      this.setState({endTimeDisabled:true});
+      this.setState({firstComeFirstServe:true});
+    } else {
+      this.setState({endDateDisabled:false});
+      this.setState({endTimeDisabled:false});
+      this.setState({firstComeFirstServe:false});
+    }
+
+  }
+
 	setPicture(tile) {
-		this.setState({picture:tile.img});
+		this.setState({img:tile.img});
 		this.setState({thumb:tile.thumbnail});
 
 		var newTileData = [];
@@ -187,30 +229,53 @@ export default class Items extends React.Component {
     // handle row interaction
     handleCellClick(rowNum,columnNum) {
         var _this = this;
-        if (columnNum===7) {
+        if (columnNum===9) {
         	console.log(this.props.items[rowNum]);
         	this.setState({id:this.props.items[rowNum].id});
         	this.setState({name:this.props.items[rowNum].name});
         	this.setState({confirmDialogOpen:true});
-
-        } else if (columnNum===6) {
+        } else if (columnNum===8) {
+        	this.setState({id:this.props.items[rowNum].id});
+        	this.setState({changeImageDialog: true});
+        } else if (columnNum===7) {
         	this.setState({title:'Edit Item'});
         	this.setState({name:this.props.items[rowNum].name});
-        	this.setState({min_bid:this.props.items[rowNum].min_bid});
+        	this.setState({minBid:this.props.items[rowNum].minBid});
         	this.setState({buyout:this.props.items[rowNum].buyout});
-        	this.setState({owner:this.props.items[rowNum].owner});
         	this.setState({id:this.props.items[rowNum].id});
-        	if (this.props.items[rowNum].start_date)
-        		this.setState({start_date:new Date(this.props.items[rowNum].start_date)});
+
+          if (this.props.items[rowNum].endDate)
+        		this.setState({endDate:new Date(this.props.items[rowNum].endDate)});
         	else
-        		this.setState({start_date:new Date()});
+        		this.setState({endDate:new Date()});
+          if (this.props.items[rowNum].firstComeFirstServe) {
+            this.setState({firstComeFirstServe:this.props.items[rowNum].firstComeFirstServe},()=>{
+              this.handleFCFSToggle(null,this.state.firstComeFirstServe);
+            });
+          } else {
+            this.setState({firstComeFirstServe:false});
+          }
         	this.setState({addDialogOpen: true});
+
+
         }
     }
 
-    formatStartDate(d) {
+    formatEndDate(d) {
     	var dateFormat = require('dateformat');
-    	return dateFormat(d, "dddd, mmmm dS");
+    	return dateFormat(d, "mmmm dd, yyyy 'at' h:MM:ss TT");
+    }
+    getEndDateForTable(d,fcfs) {
+        if (fcfs)
+          return "";
+        else
+          return this.formatEndDate(d);
+    }
+    formatBoolean(fcfs) {
+      if (fcfs)
+        return <Checkbox disabled={true} checked={true}/>;
+      else
+        return "";
     }
 
     render() {
@@ -231,40 +296,62 @@ export default class Items extends React.Component {
 		    height: 450,
 		    overflowY: 'auto',
   		};
-
+      const dialogContentStyle = {
+        width: '100%',
+        maxWidth: 'none',
+      };
 
         return (
             <div>
 
-            <Dialog title={this.state.title} modal={true} open={this.state.addDialogOpen} >
-            	<Tabs>
-            		<Tab icon={<MapsPersonPin />} label="General" >
-						<TextField hintText="Name" floatingLabelText="Name" fullWidth={true} multiLine={true} id="name" defaultValue={this.state.name} onChange={this.handleInputChange}/><br />
-						<TextField hintText="Minimum Bid" floatingLabelText="Minumum Bid" id="min_bid" type="number" defaultValue={this.state.min_bid} onChange={this.handleInputChange} /><br />
-						<TextField hintText="Buyout" floatingLabelText="Buyout" id="buyout" type="number" defaultValue={this.state.buyout} onChange={this.handleInputChange} /><br />
-						<TextField disabled={true} hintText="Owner" floatingLabelText="Owner" id="owner" defaultValue={this.state.owner} onChange={this.handleInputChange} /><br />
-						<DatePicker hintText="Start Date" mode="landscape" floatingLabelText="Start Date" id="start_date" defaultDate={this.state.start_date} onChange={this.handleStartDateInputChange} /><br />
-	                </Tab>
-					<Tab icon={<ImagePhotoLibrary />} label="Picture" >
-						<TextField hintText="Search" floatingLabelText="Search" fullWidth={true} multiLine={false} id="image_search" onKeyPress={this.handleImageKeyPress} onChange={this.handleImageSearchChange}/><br />
-
-						<GridList cellHeight={180} style={gridList}>
-						{this.state.tileData.map((tile) => (
-
-							<GridTile key={tile.img} title={tile.title}
-								subtitle={<span>by <a href={tile.author_link + "?utm_source=NW Auction&utm_medium=referral&utm_campaign=api-credit"} target="_blank"><b>{tile.author}</b></a> / <a href="https://unsplash.com/" target="_blank"><b>Unsplash</b></a></span>}
-								onClick={this.setPicture.bind(this, tile)} >
-								<img src={tile.img} />
-							</GridTile>
-
-						))}
-						</GridList>
-
-	                </Tab>
-            	</Tabs>
-				<FlatButton label="Cancel" primary={true} onTouchTap={this.handleCancel}/>
-				<FlatButton label="Submit" primary={false} onTouchTap={this.handleSubmit}/>
+            <Dialog modal={true} open={this.state.addDialogOpen} autoScrollBodyContent={true} >
+              <AppBar title={this.state.title} showMenuIconButton={false}/>
+              <table>
+                <tbody>
+                  <tr>
+                    <td colSpan="2"><TextField hintText="Name" floatingLabelText="Name" fullWidth={true} multiLine={true} id="name" defaultValue={this.state.name} onChange={this.handleInputChange}/></td>
+                  </tr>
+                  <tr>
+                    <td><TextField hintText="Minimum Bid" floatingLabelText="Minimum Bid" id="minBid" type="number" defaultValue={this.state.minBid} onChange={this.handleInputChange} /></td>
+						        <td><TextField hintText="Buyout" floatingLabelText="Buyout" id="buyout" type="number" defaultValue={this.state.buyout} onChange={this.handleInputChange} /></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <Toggle label="First come, first serve" toggled={this.state.firstComeFirstServe} labelPosition="right" onToggle={this.handleFCFSToggle}/>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><DatePicker hintText="End Date" disabled={this.state.endDateDisabled} mode="landscape" floatingLabelText="End Date" id="endDate" defaultDate={this.state.endDate} onChange={this.handleEndDateInputChange} /></td>
+                    <td><TimePicker hintText="End Time" disabled={this.state.endTimeDisabled} mode="landscape" floatingLabelText="End Time" id="endTime" defaultTime={this.state.endDate} onChange={this.handleEndDateInputChange} /></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <FlatButton label="Cancel" primary={true} onTouchTap={this.handleCancel}/>
+            				  <FlatButton label="Submit" primary={false} onTouchTap={this.handleSubmit}/>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
         	</Dialog>
+
+        <Dialog modal={true} open={this.state.changeImageDialog} autoScrollBodyContent={true}>
+          <AppBar title={"Change Image"} showMenuIconButton={false}/>
+          <TextField hintText="Search" floatingLabelText="Search For Image" fullWidth={true} multiLine={false} id="image_search" onKeyPress={this.handleImageKeyPress} onChange={this.handleImageSearchChange}/><br/>
+          <GridList cellHeight={180} >
+            {this.state.tileData.map((tile) => (
+
+            <GridTile key={tile.img} title={tile.title}
+                subtitle={<span>by <a href={tile.author_link + "?utm_source=NW Auction&utm_medium=referral&utm_campaign=api-credit"} target="_blank"><b>{tile.author}</b></a> / <a href="https://unsplash.com/" target="_blank"><b>Unsplash</b></a></span>}
+                onClick={this.setPicture.bind(this, tile)} >
+              <img src={tile.img} />
+            </GridTile>
+
+          ))}
+          </GridList>
+          <FlatButton label="Cancel" primary={true} onTouchTap={this.handleImgCancel}/>
+          <FlatButton label="Submit" primary={false} onTouchTap={this.handleImgSubmit}/>
+        </Dialog>
+
 				<Dialog
 					title={'Are you sure you want to delete '+this.state.name+'?'}
 					modal={true}
@@ -280,15 +367,17 @@ export default class Items extends React.Component {
 	            <Table onCellClick={this.handleCellClick}>
 	                    <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
 	                        <TableRow>
-	                        <TableHeaderColumn></TableHeaderColumn>
+	                        <TableHeaderColumn>Picture</TableHeaderColumn>
 	                        <TableHeaderColumn>Name</TableHeaderColumn>
                   	      <TableHeaderColumn>Min. Bid</TableHeaderColumn>
 	                        <TableHeaderColumn>Bid</TableHeaderColumn>
                           <TableHeaderColumn>Bidder</TableHeaderColumn>
-	                        <TableHeaderColumn>Start Date</TableHeaderColumn>
-	                        <TableHeaderColumn></TableHeaderColumn>
-	                        <TableHeaderColumn></TableHeaderColumn>
-	                      </TableRow>
+                          <TableHeaderColumn>First</TableHeaderColumn>
+	                        <TableHeaderColumn>End Date</TableHeaderColumn>
+	                        <TableHeaderColumn>Edit</TableHeaderColumn>
+	                        <TableHeaderColumn>Change Pic</TableHeaderColumn>
+	                        <TableHeaderColumn>Remove</TableHeaderColumn>
+        	              </TableRow>
 	                    </TableHeader>
 
 		               <TableBody stripedRows={false} displayRowCheckbox={false}>
@@ -301,8 +390,10 @@ export default class Items extends React.Component {
 		                            <TableRowColumn>{item.minBid}</TableRowColumn>
 		                            <TableRowColumn>{item.bid}</TableRowColumn>
                                 <TableRowColumn>{item.bidder}</TableRowColumn>
-		                            <TableRowColumn>{_this.formatStartDate(item.start_date)}</TableRowColumn>
+                                <TableRowColumn>{_this.formatBoolean(item.firstComeFirstServe)}</TableRowColumn>
+		                            <TableRowColumn>{_this.getEndDateForTable(item.endDate,item.firstComeFirstServe)}</TableRowColumn>
 		                            <TableRowColumn><IconButton><ActionEdit /></IconButton></TableRowColumn>
+                                <TableRowColumn><IconButton><PhotoLibrary /></IconButton></TableRowColumn>
 									              <TableRowColumn><IconButton><ActionDelete /></IconButton></TableRowColumn>
 		                        </TableRow>
 
